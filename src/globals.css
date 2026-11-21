@@ -4,89 +4,47 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Game Boy Green Palette */
+    --gb-green: 79 60% 35%;
+    --gb-green-light: 80 55% 60%;
+    --gb-green-dark: 80 45% 20%;
+    --gb-green-dim: 80 30% 15%;
+    
+    /* SNES Grey Palette */
+    --snes-grey: 0 0% 63%;
+    --snes-grey-light: 0 0% 75%;
+    --snes-grey-dark: 0 0% 40%;
+    --snes-grey-darker: 0 0% 25%;
+    
+    /* Deep Indigo Background */
+    --indigo: 240 50% 10%;
+    --indigo-light: 240 40% 15%;
+    
+    /* Accent Colors */
+    --magenta: 300 100% 50%;
+    --cyan: 180 100% 50%;
+    
+    /* System Colors */
+    --background: var(--indigo);
+    --foreground: var(--gb-green-light);
+    --card: var(--indigo-light);
+    --card-foreground: var(--gb-green-light);
+    --popover: var(--indigo-light);
+    --popover-foreground: var(--gb-green-light);
+    --primary: var(--gb-green);
+    --primary-foreground: var(--indigo);
+    --secondary: var(--snes-grey-dark);
+    --secondary-foreground: var(--gb-green-light);
+    --muted: var(--snes-grey-darker);
+    --muted-foreground: var(--snes-grey);
+    --accent: var(--magenta);
+    --accent-foreground: var(--indigo);
+    --destructive: 0 84% 60%;
+    --destructive-foreground: var(--indigo);
+    --border: var(--snes-grey-dark);
+    --input: var(--snes-grey-dark);
+    --ring: var(--gb-green);
+    --radius: 0.375rem;
   }
 }
 
@@ -94,8 +52,379 @@
   * {
     @apply border-border;
   }
-
+  
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-mono antialiased;
+    background-image: 
+      linear-gradient(rgba(128, 128, 128, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(128, 128, 128, 0.03) 1px, transparent 1px);
+    background-size: 8px 8px;
+  }
+  
+  /* Pixel font for retro feel */
+  @font-face {
+    font-family: 'Pixel';
+    src: local('monospace');
+  }
+  
+  .font-pixel {
+    font-family: 'VT323', 'Press Start 2P', monospace;
+    letter-spacing: 0.05em;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--indigo));
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--snes-grey-dark));
+  border: none;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--snes-grey));
+}
+
+/* Retro panel styles */
+.panel {
+  background: hsl(var(--card));
+  border: 2px solid hsl(var(--snes-grey-dark));
+  position: relative;
+  box-shadow: 
+    inset 2px 2px 0 rgba(255,255,255,0.1),
+    inset -2px -2px 0 rgba(0,0,0,0.3),
+    4px 4px 0 rgba(0,0,0,0.2);
+}
+
+.panel-raised {
+  background: hsl(var(--snes-grey-dark));
+  border: 2px solid hsl(var(--snes-grey-light));
+  box-shadow: 
+    inset -2px -2px 0 rgba(0,0,0,0.3),
+    inset 2px 2px 0 rgba(255,255,255,0.1);
+}
+
+.panel-recessed {
+  background: hsl(var(--snes-grey-darker));
+  border: 2px solid hsl(var(--snes-grey));
+  box-shadow: 
+    inset 2px 2px 0 rgba(0,0,0,0.4),
+    inset -2px -2px 0 rgba(255,255,255,0.05);
+}
+
+/* LCD screen effect */
+.lcd-screen {
+  background: hsl(var(--gb-green-dim));
+  border: 2px solid hsl(var(--gb-green-dark));
+  position: relative;
+  overflow: hidden;
+  box-shadow: 
+    inset 0 0 20px rgba(0,0,0,0.5),
+    inset 2px 2px 0 rgba(155, 188, 15, 0.1),
+    inset -2px -2px 0 rgba(0,0,0,0.3);
+}
+
+.lcd-screen::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.1) 2px,
+    rgba(0,0,0,0.1) 4px
+  );
+  pointer-events: none;
+  z-index: 10;
+}
+
+.lcd-screen::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.3) 100%);
+  pointer-events: none;
+  z-index: 11;
+}
+
+/* Retro button */
+.btn-retro {
+  padding: 0.5rem 1rem;
+  font-family: 'VT323', 'Press Start 2P', monospace;
+  font-size: 0.75rem;
+  border: 2px solid hsl(var(--snes-grey));
+  transition: all 75ms ease;
+  background: hsl(var(--snes-grey-dark));
+  border-color: hsl(var(--snes-grey));
+  color: hsl(var(--gb-green-light));
+  box-shadow: 
+    inset -2px -2px 0 rgba(0,0,0,0.3),
+    inset 2px 2px 0 rgba(255,255,255,0.1);
+}
+
+.btn-retro:hover {
+  background: hsl(var(--snes-grey));
+  border-color: hsl(var(--snes-grey-light));
+}
+
+.btn-retro:active {
+  background: hsl(var(--snes-grey-darker));
+  border-color: hsl(var(--snes-grey));
+  box-shadow: 
+    inset 2px 2px 0 rgba(0,0,0,0.4),
+    inset -2px -2px 0 rgba(255,255,255,0.05);
+}
+
+.btn-retro.primary {
+  background: hsl(var(--gb-green));
+  border-color: hsl(var(--gb-green-dark));
+  color: hsl(var(--indigo));
+  box-shadow: 
+    inset -2px -2px 0 rgba(0,0,0,0.3),
+    inset 2px 2px 0 rgba(255,255,255,0.1);
+}
+
+.btn-retro.primary:hover {
+  background: hsl(var(--gb-green-light));
+  border-color: hsl(var(--gb-green));
+}
+
+.btn-retro.primary:active {
+  background: hsl(var(--gb-green-dark));
+  border-color: hsl(var(--gb-green-dark));
+  box-shadow: 
+    inset 2px 2px 0 rgba(0,0,0,0.4),
+    inset -2px -2px 0 rgba(255,255,255,0.05);
+}
+
+.btn-retro.accent {
+  background: hsl(var(--magenta));
+  border-color: hsl(var(--magenta) / 0.8);
+  color: hsl(var(--indigo));
+  box-shadow: 
+    inset -2px -2px 0 rgba(0,0,0,0.3),
+    inset 2px 2px 0 rgba(255,255,255,0.1);
+}
+
+.btn-retro.accent:hover {
+  background: hsl(var(--magenta) / 0.9);
+  border-color: hsl(var(--magenta));
+}
+
+.btn-retro.accent:active {
+  background: hsl(var(--magenta) / 0.7);
+  border-color: hsl(var(--magenta) / 0.6);
+  box-shadow: 
+    inset 2px 2px 0 rgba(0,0,0,0.4),
+    inset -2px -2px 0 rgba(255,255,255,0.05);
+}
+
+/* Slider/fader styles */
+.fader-track {
+  background: hsl(var(--snes-grey-darker));
+  border: 2px solid hsl(var(--snes-grey));
+  position: relative;
+}
+
+.fader-thumb {
+  background: hsl(var(--snes-grey-light));
+  border: 2px solid hsl(var(--snes-grey-dark));
+  width: 1.5rem;
+  height: 0.75rem;
+  cursor: grab;
+}
+
+.fader-thumb:active {
+  cursor: grabbing;
+}
+
+.fader-thumb:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px hsl(var(--gb-green));
+}
+
+/* Step sequencer grid */
+.seq-grid {
+  display: grid;
+  gap: 0.25rem;
+  grid-template-columns: repeat(16, 1fr);
+}
+
+.seq-step {
+  aspect-ratio: 1;
+  background: hsl(var(--snes-grey-darker));
+  border: 2px solid hsl(var(--snes-grey));
+  font-family: 'VT323', 'Press Start 2P', monospace;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 75ms ease;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.05);
+}
+
+.seq-step.active {
+  background: hsl(var(--gb-green));
+  border-color: hsl(var(--gb-green-dark));
+  color: hsl(var(--indigo));
+  box-shadow: 
+    inset -1px -1px 0 rgba(0,0,0,0.3),
+    inset 1px 1px 0 rgba(255,255,255,0.1);
+}
+
+.seq-step.playing {
+  background: hsl(var(--cyan));
+  border-color: hsl(var(--cyan) / 0.8);
+  color: hsl(var(--indigo));
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.seq-step.empty:hover {
+  background: hsl(var(--snes-grey-dark));
+  border-color: hsl(var(--snes-grey));
+}
+
+/* Waveform display */
+.waveform-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Tab styles */
+.tab-btn {
+  padding: 0.375rem 0.75rem;
+  font-family: 'VT323', 'Press Start 2P', monospace;
+  font-size: 0.75rem;
+  border: 2px solid hsl(var(--snes-grey));
+  transition: all 75ms ease;
+  background: hsl(var(--snes-grey-darker));
+  border-color: hsl(var(--snes-grey));
+  color: hsl(var(--snes-grey));
+}
+
+.tab-btn.active {
+  background: hsl(var(--gb-green));
+  border-color: hsl(var(--gb-green-dark));
+  color: hsl(var(--indigo));
+  box-shadow: 
+    inset -1px -1px 0 rgba(0,0,0,0.3),
+    inset 1px 1px 0 rgba(255,255,255,0.1);
+}
+
+.tab-btn:hover:not(.active) {
+  background: hsl(var(--snes-grey-dark));
+  border-color: hsl(var(--snes-grey));
+  color: hsl(var(--gb-green-light));
+}
+
+/* Knob styles */
+.knob {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 9999px;
+  background: hsl(var(--snes-grey-dark));
+  border: 2px solid hsl(var(--snes-grey));
+  position: relative;
+  cursor: grab;
+}
+
+.knob:active {
+  cursor: grabbing;
+}
+
+.knob::before {
+  content: '';
+  position: absolute;
+  top: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0.125rem;
+  height: 0.25rem;
+  background: hsl(var(--gb-green));
+  border-radius: 0.125rem;
+}
+
+/* Chip cartridge */
+.chip-cartridge {
+  background: hsl(var(--snes-grey-dark));
+  border: 2px solid hsl(var(--snes-grey));
+  padding: 0.75rem;
+  position: relative;
+}
+
+.chip-cartridge::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1.5rem;
+  height: 0.25rem;
+  background: hsl(var(--snes-grey));
+  border-radius: 0.25rem 0.25rem 0 0;
+}
+
+.chip-pins {
+  display: flex;
+  gap: 0.125rem;
+  margin-top: 0.5rem;
+}
+
+.chip-pin {
+  width: 0.25rem;
+  height: 1rem;
+  border-radius: 0.125rem;
+  background: linear-gradient(180deg, hsl(var(--gb-green)) 0%, hsl(var(--gb-green-dark)) 100%);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.1);
+}
+
+/* Animation keyframes */
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-scanline {
+  animation: scanline 8s linear infinite;
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+.animate-pulse {
+  animation: pulse 1s ease-in-out infinite;
+}
+
+/* Mobile-first responsive */
+@media (max-width: 640px) {
+  .seq-grid {
+    grid-template-columns: repeat(8, 1fr);
+  }
+  
+  .fader-track {
+    height: 200px;
   }
 }

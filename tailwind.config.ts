@@ -62,6 +62,25 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Retro Game Boy / SNES colors
+        gb: {
+          green: "hsl(var(--gb-green))",
+          "green-light": "hsl(var(--gb-green-light))",
+          "green-dark": "hsl(var(--gb-green-dark))",
+          "green-dim": "hsl(var(--gb-green-dim))",
+        },
+        snes: {
+          grey: "hsl(var(--snes-grey))",
+          "grey-light": "hsl(var(--snes-grey-light))",
+          "grey-dark": "hsl(var(--snes-grey-dark))",
+          "grey-darker": "hsl(var(--snes-grey-darker))",
+        },
+        indigo: {
+          DEFAULT: "hsl(var(--indigo))",
+          light: "hsl(var(--indigo-light))",
+        },
+        magenta: "hsl(var(--magenta))",
+        cyan: "hsl(var(--cyan))",
       },
       borderRadius: {
         lg: "var(--radius)",
