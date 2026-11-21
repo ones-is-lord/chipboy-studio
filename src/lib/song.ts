@@ -1,12 +1,13 @@
+import type { Effects } from "./effects";
 export type Note = { id: string; midi: number; start: number; duration: number };
 export type SongBlock = { pattern: number; start: number; end: number; length: number };
 export type Track = {
   name: string; chip: string; voice: "square" | "triangle" | "kick" | "noise" | "sample";
-  preset: string; octave: number; sampleId?: string;
+  preset: string; octave: number; sampleId?: string; effects?: Effects;
   rootMidi: number; patterns: Note[][]; bars: (SongBlock | null)[]; muted: boolean; volume: number; pitch: number;
 };
-export type Song = { name: string; bpm: number; speed: number; barCount: number; master: number; tracks: Track[] };
-export type SampleAsset = { id: string; name: string; buffer: AudioBuffer; revision: number; rootMidi: number; loop: boolean };
+export type Song = { name: string; bpm: number; speed: number; barCount: number; master: number; tracks: Track[]; loop?: { enabled: boolean; startBar: number; endBar: number } };
+export type SampleAsset = { id: string; name: string; buffer: AudioBuffer; revision: number; rootMidi: number; loop: boolean; loopStart?: number; loopEnd?: number };
 export const stepSeconds = (song: Song) => 60 / song.bpm / 4 / song.speed;
 export const patternLabel = (index: number) => index < 26 ? String.fromCharCode(65 + index) : `P${index + 1}`;
 export const newBlock = (pattern: number): SongBlock => ({ pattern, start: 0, end: 16, length: 16 });

@@ -1,6 +1,7 @@
 import { instrumentById } from "./instruments";
 import { blockNotes, stepSeconds, type Note, type SampleAsset, type Song, type SongBlock, type Track } from "./song";
 import { cropBuffer, stretchBuffer } from "./sample-processing";
+import { createEffectsBus, effectTail } from "./effects";
 
 export type Voice = { stop: () => void; isEnded: () => boolean };
 export type SampleCache = Map<string, AudioBuffer>;
@@ -8,8 +9,8 @@ export function prepareSample(track: Track, note: Note, seconds: number, samples
   const asset = samples.find(a => a.id === track.sampleId);
   if (!asset) return null;
   const semitones = note.midi - asset.rootMidi + track.pitch + track.octave * 12;
-  const start = block ? block.start / 16 * asset.buffer.duration : 0;
-  const end = block ? block.end / 16 * asset.buffer.duration : asset.buffer.duration;
+  const start = asset.loop ? asset.loopStart ?? 0 : block ? block.start / 16 * asset.buffer.duration : 0;
+  const end = asset.loop ? asset.loopEnd ?? asset.buffer.duration : block ? block.end / 16 * asset.buffer.duration : asset.buffer.duration;
   const duration = Math.max(0.02, seconds);
   if (!asset.loop && duration > 300) throw new Error("A stretched sample cannot exceed five minutes. Shorten its block or enable sample looping.");
   const key = `${asset.id}/${asset.revision}/${start}/${end}/${duration}/${semitones}/${asset.loop}`;
@@ -22,11 +23,11 @@ export function prepareSample(track: Track, note: Note, seconds: number, samples
   }
   return { buffer, loop: asset.loop, rate: asset.loop ? 2 ** (semitones / 12) : 1 };
 }
-export function scheduleVoice(ctx: BaseAudioContext, track: Track, note: Note, master: number, when: number, seconds: number, samples: SampleAsset[], block?: SongBlock, cache: SampleCache = new Map()): Voice {
+export function scheduleVoice(ctx: BaseAudioContext, track: Track, note: Note, master: number, when: number, seconds: number, samples: SampleAsset[], block?: SongBlock, cache: SampleCache = new Map(), destination: AudioNode = ctx.destination): Voice {
   const sources: AudioScheduledSourceNode[] = [];
   const nodes: AudioNode[] = [];
   const gain = ctx.createGain(); nodes.push(gain);
-  gain.connect(ctx.destination);
+  gain.connect(destination);
   const level = track.volume / 100 * master / 100 * (track.voice === "sample" ? 0.65 : 0.12);
   if (level === 0) { gain.disconnect(); return { stop: () => {}, isEnded: () => true }; }
   const root = track.voice === "sample" ? samples.find(a => a.id === track.sampleId)?.rootMidi ?? track.rootMidi : track.rootMidi;
@@ -88,13 +89,24 @@ export function songEvents(song: Song) {
   const unit = stepSeconds(song);
   return song.tracks.flatMap(track => track.muted ? [] : track.bars.flatMap((block, bar) => !block ? [] : blockNotes(track, block).map(note => ({ track, block, note, when: (bar * 16 + note.start) * unit, duration: note.duration * unit })));
 }
-export async function renderSong(song: Song, samples: SampleAsset[]) {
-  const events = songEvents(song);
-  if (!events.length) throw new Error("Add notes or sample blocks before exporting.");
-  const end = Math.max(...song.tracks.flatMap(t => t.bars.flatMap((b, i) => b ? [(i * 16 + b.length) * stepSeconds(song)] : []))) + 0.8;
-  if (end > 300) throw new Error("WAV export is limited to five minutes to protect browser memory.");
+export async function renderSong(song: Song, samples: SampleAsset[], options: { track?: number; loopOnly?: boolean } = {}) {
+  const unit = stepSeconds(song);
+  const start = options.loopOnly ? (song.loop?.startBar ?? 0) * 16 * unit : 0;
+  const finish = options.loopOnly ? (song.loop?.endBar ?? song.barCount) * 16 * unit : song.barCount * 16 * unit;
+  const events = songEvents(song).filter(e => e.when < finish && e.when + e.duration > start && (options.track === undefined || e.track === song.tracks[options.track]));
+  if (!events.length) throw new Error("No audible notes in this export selection.");
+  const tail = Math.max(...song.tracks.map(t => effectTail(t.effects, song.bpm, song.speed)));
+  const end = finish - start + tail;
+  if (end > 300) throw new Error("WAV export is limited to five minutes including effect tails.");
   const ctx = new OfflineAudioContext(2, Math.ceil(end * 44100), 44100);
+  const buses = song.tracks.map(t => createEffectsBus(ctx, t.effects, song.bpm, song.speed));
   const cache: SampleCache = new Map();
-  for (const event of events) scheduleVoice(ctx, event.track, event.note, song.master, event.when, event.duration, samples, event.block, cache);
-  return ctx.startRendering();
+  try {
+    for (const event of events) {
+      const when = Math.max(start, event.when);
+      const duration = Math.min(finish, event.when + event.duration) - when;
+      scheduleVoice(ctx, event.track, event.note, song.master, when - start, duration, samples, event.block, cache, buses[song.tracks.indexOf(event.track)].input);
+    }
+    return await ctx.startRendering();
+  } finally { buses.forEach(b => b.dispose()); }
 }
