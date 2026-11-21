@@ -11,6 +11,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC = ROOT / "public"
+RESOURCES = ROOT / "resources"
 FONT_PATH = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("/tmp/fonts/PressStart2P-Regular.ttf")
 
 OUT = (47, 61, 40, 255)
@@ -114,6 +115,37 @@ def og_image() -> Image.Image:
     return image
 
 
+def android_resources() -> None:
+    RESOURCES.mkdir(exist_ok=True)
+    app_icon(1024).save(RESOURCES / "icon.png")
+    Image.new("RGBA", (1024, 1024), CASE).save(RESOURCES / "icon-background.png")
+    foreground = Image.new("RGBA", (1024, 1024), (0, 0, 0, 0))
+    sprite = controller().resize((760, 760), Image.Resampling.NEAREST)
+    foreground.alpha_composite(sprite, ((1024 - sprite.width) // 2, (1024 - sprite.height) // 2))
+    foreground.save(RESOURCES / "icon-foreground.png")
+
+    splash = Image.new("RGB", (2732, 2732), CASE)
+    draw = ImageDraw.Draw(splash)
+    icon = app_icon(720)
+    splash.paste(icon, ((2732 - icon.width) // 2, 760), icon)
+    if FONT_PATH.exists():
+        title = ImageFont.truetype(str(FONT_PATH), 96)
+        tagline = ImageFont.truetype(str(FONT_PATH), 30)
+    else:
+        title = tagline = ImageFont.load_default()
+    label = "CHIPBOY"
+    label_width = draw.textlength(label, font=title)
+    draw.text(((2732 - label_width) / 2, 1580), label, font=title, fill=INK)
+    label = "STUDIO"
+    label_width = draw.textlength(label, font=title)
+    draw.text(((2732 - label_width) / 2, 1710), label, font=title, fill=BERRY)
+    label = "POCKET-SIZED SOUNDS"
+    label_width = draw.textlength(label, font=tagline)
+    draw.text(((2732 - label_width) / 2, 1890), label, font=tagline, fill=(102, 108, 94))
+    splash.save(RESOURCES / "splash.png")
+    splash.save(RESOURCES / "splash-dark.png")
+
+
 def main() -> None:
     PUBLIC.mkdir(exist_ok=True)
     (PUBLIC / "icons").mkdir(exist_ok=True)
@@ -124,7 +156,8 @@ def main() -> None:
     app_icon(192).save(PUBLIC / "icons" / "icon-192.png")
     app_icon(512).save(PUBLIC / "icons" / "icon-512.png")
     og_image().save(PUBLIC / "og-image.png", optimize=True)
-    print("Generated favicon.svg, favicon.ico, apple-touch-icon.png, icons/ and og-image.png")
+    android_resources()
+    print("Generated favicon.svg, favicon.ico, apple-touch-icon.png, icons/, og-image.png and resources/ Android art")
 
 
 if __name__ == "__main__":

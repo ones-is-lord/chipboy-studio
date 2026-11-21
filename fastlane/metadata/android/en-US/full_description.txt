@@ -1,0 +1,20 @@
+Chipboy Studio is a complete little chiptune workstation that fits in your pocket. It runs entirely on your device, with no account, no server and no uploads.
+
+Make music with a 16-step sequencer, a piano roll, 30 synth presets, a microphone sampler, a slicer, 16 performance pads and a riff palette. Arrange songs up to 64 bars, shape each channel with volume, pitch, pan, mute, solo, reverb and delay, then export a stereo 44.1 kHz / 16-bit WAV.
+
+The Android app bundles every sound engine and every font. It works offline, including in airplane mode. Your projects are stored locally on the device. WAV and project files are handed to Android's share sheet so you can save them to Files, send them to another app, or keep them in cloud storage you already use.
+
+Features:
+- Five channels per song, two patterns per channel, 1 to 8 bar clips.
+- Step pads or piano roll with a five-octave keyboard.
+- 30 built-in synth presets and a microphone sampler.
+- Slice, trim, reverse, normalize, fade and pitch samples.
+- 16 pads, sample loop modes and a sample library.
+- Song arrangement with drag-to-move and drag-to-swap blocks.
+- Undo and redo across musical edits.
+- Local project slots, autosave and shareable song links.
+- Stereo WAV export up to five minutes.
+- Pixel-art interface, animated sprites and a Nintendo-inspired pixel font.
+- No analytics, no ads, no tracking and no network dependency.
+
+Chipboy Studio is free and open source under the MIT licence. The source code, issue tracker and build instructions are on GitHub.

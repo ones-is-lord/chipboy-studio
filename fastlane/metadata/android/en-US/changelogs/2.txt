@@ -1,0 +1,8 @@
+First Android release.
+
+- Installable offline APK with the full Chipboy Studio web app bundled in.
+- Native Android share sheet for WAV and project files.
+- Native share sheet for song links.
+- Android splash screen, status bar colours and launcher icon.
+- Microphone recording permission for the sampler.
+- F-Droid-compatible build metadata and fastlane listing.

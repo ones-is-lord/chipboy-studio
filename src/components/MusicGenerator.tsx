@@ -9,7 +9,8 @@ import { useStudio } from "./StudioProvider";
 import { useSongPlayback } from "@/hooks/use-song-playback";
 import { coveringBlock, createDemoSong, newBlock, noteName, overlaps, validArrangement, type Note, type SongBlock, type Track } from "@/lib/song";
 import { renderSong } from "@/lib/audio-engine";
-import { downloadBlob, safeFilename, wavBlob } from "@/lib/wav";
+import { saveBlob } from "@/lib/native";
+import { safeFilename, wavBlob } from "@/lib/wav";
 import { projectFilename, serializeProject } from "@/lib/project";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -73,15 +74,15 @@ export function MusicGenerator({ active }: { active: boolean }) {
     audio.stop(); setSelectedTrack(0); setSelectedBar(0); setPreferredPattern(0);
     const demo = createDemoSong(); edit({ ...demo, name: "Untitled song", tracks: demo.tracks.map(t => ({ ...t, patterns: [[], []], bars: Array(demo.barCount).fill(null) })) });
   };
-  const exportData = () => {
+  const exportData = async () => {
     try {
-      downloadBlob(new Blob([serializeProject(song, studio.audioSamples)], { type: "application/json" }), projectFilename(song.name));
-      toast.success("Project data exported. Sample audio is not embedded; export sample WAVs separately.");
+      await saveBlob(new Blob([serializeProject(song, studio.audioSamples)], { type: "application/json" }), projectFilename(song.name));
+      toast.success("Project data ready. Sample audio is not embedded; export sample WAVs separately.");
     } catch (e) { toast.error(e instanceof Error ? e.message : "Song data could not be exported."); }
   };
   const exportWav = async () => {
     setExporting(true); audio.stop();
-    try { await new Promise<void>(resolve => window.requestAnimationFrame(() => resolve())); const buffer = await renderSong(song, studio.audioSamples); downloadBlob(wavBlob(buffer), `${safeFilename(song.name)}.wav`); toast.success("Rendered stereo 44.1 kHz / 16-bit WAV downloaded."); }
+    try { await new Promise<void>(resolve => window.requestAnimationFrame(() => resolve())); const buffer = await renderSong(song, studio.audioSamples); await saveBlob(wavBlob(buffer), `${safeFilename(song.name)}.wav`); toast.success("Rendered stereo 44.1 kHz / 16-bit WAV."); }
     catch (e) { toast.error(e instanceof Error ? e.message : "WAV rendering failed. Try a shorter song."); }
     finally { setExporting(false); }
   };

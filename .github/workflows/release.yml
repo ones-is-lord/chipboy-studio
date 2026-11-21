@@ -37,15 +37,48 @@ jobs:
       - name: Run the full check
         run: pnpm check
 
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: "platforms;android-36 build-tools;36.0.0"
+
+      - name: Sync Capacitor Android
+        run: pnpm exec cap sync android
+
+      - name: Decode the Android signing keystore
+        run: echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/chipboy-release.jks"
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+
+      - name: Build the signed Android APK
+        run: cd android && ./gradlew assembleRelease
+        env:
+          CHIPBOY_KEYSTORE_PATH: ${{ runner.temp }}/chipboy-release.jks
+          CHIPBOY_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          CHIPBOY_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          CHIPBOY_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+      - name: Verify the APK signature
+        run: $ANDROID_HOME/build-tools/36.0.0/apksigner verify --verbose android/app/build/outputs/apk/release/app-release.apk
+
       - name: Package the static build
         run: zip -qr "chipboy-studio-${GITHUB_REF_NAME}.zip" dist
+
+      - name: Stage release files
+        run: cp android/app/build/outputs/apk/release/app-release.apk "chipboy-studio-${GITHUB_REF_NAME}.apk"
 
       - name: Publish the GitHub release
         run: |
           if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
-            gh release upload "${GITHUB_REF_NAME}" "chipboy-studio-${GITHUB_REF_NAME}.zip" --clobber
+            gh release upload "${GITHUB_REF_NAME}" "chipboy-studio-${GITHUB_REF_NAME}.zip" "chipboy-studio-${GITHUB_REF_NAME}.apk" --clobber
           else
-            gh release create "${GITHUB_REF_NAME}" "chipboy-studio-${GITHUB_REF_NAME}.zip" --title "Chipboy Studio ${GITHUB_REF_NAME}" --generate-notes
+            gh release create "${GITHUB_REF_NAME}" "chipboy-studio-${GITHUB_REF_NAME}.zip" "chipboy-studio-${GITHUB_REF_NAME}.apk" --title "Chipboy Studio ${GITHUB_REF_NAME}" --generate-notes
           fi
         env:
           GH_TOKEN: ${{ github.token }}

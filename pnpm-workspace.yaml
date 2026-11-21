@@ -6,5 +6,8 @@ allowBuilds:
 packages:
   - .
 
+overrides:
+  workbox-build>glob: 14.0.6
+
 # Wait a day before adopting a brand-new release.
 minimumReleaseAge: 1440

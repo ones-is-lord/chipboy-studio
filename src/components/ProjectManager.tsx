@@ -30,7 +30,7 @@ import {
   serializeProject,
   type StoredProject,
 } from "@/lib/project";
-import { downloadBlob } from "@/lib/wav";
+import { isNative, saveBlob, shareLink } from "@/lib/native";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -98,10 +98,10 @@ export function ProjectManager() {
     }
   };
 
-  const exportProject = () => {
+  const exportProject = async () => {
     try {
-      downloadBlob(new Blob([serializeProject(snapshot(), studio.samples)], { type: "application/json" }), projectFilename(projectName || studio.song.name));
-      toast.success("Project JSON exported. Sample audio is listed but not embedded.");
+      await saveBlob(new Blob([serializeProject(snapshot(), studio.samples)], { type: "application/json" }), projectFilename(projectName || studio.song.name));
+      toast.success("Project JSON ready. Sample audio is listed but not embedded.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "The project could not be exported.");
     }
@@ -127,7 +127,10 @@ export function ProjectManager() {
 
   const share = async () => {
     try {
-      const url = buildShareUrl(snapshot(), window.location);
+      const shareLocation = isNative
+        ? { origin: "https://ones-is-lord.github.io", pathname: "/chipboy-studio/" }
+        : window.location;
+      const url = buildShareUrl(snapshot(), shareLocation);
       if (url.length > 8_000) throw new Error("This song is too large for a share link. Export the JSON file instead.");
       setShareUrl(url);
       setCopied(false);
@@ -140,6 +143,14 @@ export function ProjectManager() {
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "A share link could not be created.");
+    }
+  };
+
+  const shareExternally = async () => {
+    try {
+      if (!(await shareLink(shareUrl))) throw new Error("Sharing is not available here.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "The link could not be shared.");
     }
   };
 
@@ -225,6 +236,7 @@ export function ProjectManager() {
             <>
               <input readOnly value={shareUrl} aria-label="Shareable song link" onFocus={event => event.currentTarget.select()} className="min-w-48 flex-1 rounded border bg-white/60 px-2 py-1 text-[9px]" />
               <Button onClick={() => void copyShare()} className="hardware-button h-8 px-2 text-[9px]">{copied ? <Check size={12} /> : <Copy size={12} />} {copied ? "COPIED" : "COPY"}</Button>
+              {isNative && <Button onClick={() => void shareExternally()} className="play-button h-8 px-2 text-[9px]"><Share2 size={12} /> SHARE</Button>}
             </>
           )}
         </div>

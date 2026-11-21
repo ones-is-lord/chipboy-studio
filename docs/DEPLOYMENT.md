@@ -54,6 +54,21 @@ It copies `dist/index.html` to `dist/404.html` so deep links work on Pages. The 
 
 If the repository is a user or organization site (`<name>.github.io`), change `VITE_BASE_PATH` to `/` in the workflow.
 
+## Android release
+
+The release workflow publishes three artifacts for a `v*` tag:
+
+- `chipboy-studio-<tag>.zip` — the static web build.
+- `chipboy-studio-<tag>.apk` — the signed Android release APK.
+- The source archive GitHub adds automatically.
+
+The workflow reads the signing keystore from repository secrets. See
+[ANDROID.md](ANDROID.md) for the secret names and local signing steps. The
+signature is checked with `apksigner` before upload.
+
+F-Droid does not use this APK. It builds its own from the tag and signs it with
+the F-Droid key. See [FDROID.md](FDROID.md).
+
 ## Cloudflare Pages, S3, nginx
 
 - Build command: `pnpm build`
@@ -111,7 +126,12 @@ Absolute asset URLs in `index.html` use `%BASE_URL%`, so they follow the same va
 - [ ] CI is green on the release commit.
 - [ ] `CHANGELOG.md` has an entry for the version.
 - [ ] `package.json` version matches the tag.
+- [ ] `android/app/build.gradle` `versionCode` is new and `versionName` matches the tag.
 - [ ] A production build loads with no console errors.
 - [ ] Playback, WAV export and project import work in Chrome and Safari.
 - [ ] The social preview image and manifest icons load.
 - [ ] The deployed CSP does not block the microphone or audio blobs.
+- [ ] The release workflow produced a signed APK and `apksigner verify` passed.
+- [ ] The APK installs on a clean Android device and opens in airplane mode.
+- [ ] The F-Droid changelog file exists for the new version code.
+- [ ] The F-Droid recipe points at the new tag and version code.

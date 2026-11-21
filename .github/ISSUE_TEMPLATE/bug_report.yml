@@ -38,6 +38,17 @@ body:
       required: true
 
   - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - Web browser
+        - Android APK
+        - Both
+    validations:
+      required: true
+
+  - type: dropdown
     id: area
     attributes:
       label: Area
@@ -50,7 +61,9 @@ body:
         - Audio playback
         - WAV export
         - Interface / accessibility
+        - Android app / offline / permissions
         - Build / deployment
+        - F-Droid
         - Other
     validations:
       required: true
@@ -58,8 +71,8 @@ body:
   - type: input
     id: browser
     attributes:
-      label: Browser and version
-      placeholder: Chrome 142 on macOS 15.2
+      label: Browser or Android version
+      placeholder: Chrome 142 on macOS 15.2, or Android 14 on Pixel 8
     validations:
       required: true
 

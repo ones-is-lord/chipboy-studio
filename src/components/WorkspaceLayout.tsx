@@ -7,6 +7,7 @@ import { StudioProvider } from "./StudioProvider";
 import { MusicGenerator } from "./MusicGenerator";
 import { RiffLibrary } from "./RiffLibrary";
 import { AnimatedSprite, PixelArt, PixelEqualizer } from "./PixelArt";
+import { tapHaptic } from "@/lib/native";
 import { cn } from "@/lib/utils";
 
 const modes = [
@@ -54,7 +55,7 @@ const StudioWorkspace = () => {
 
           <nav className="console-nav mb-5 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-5" aria-label="Studio workspaces">
             {modes.map(({ id, label, icon: Icon }, index) => (
-              <button key={id} onClick={() => setMode(id)} aria-pressed={mode === id} className={cn("console-tab flex min-h-14 items-center justify-center gap-2 rounded-lg px-2 py-3 sm:justify-start sm:px-2 lg:px-5", mode === id && "selected")}>
+              <button key={id} onClick={() => { void tapHaptic(); setMode(id); }} aria-pressed={mode === id} className={cn("console-tab flex min-h-14 items-center justify-center gap-2 rounded-lg px-2 py-3 sm:justify-start sm:px-2 lg:px-5", mode === id && "selected")}>
                 <Icon size={18} strokeWidth={2.4} className="hidden lg:block" />
                 <span className="flex flex-col items-center gap-1 text-[10px] font-black uppercase tracking-wider sm:flex-row sm:gap-2 sm:text-[11px] lg:gap-3 lg:text-xs"><span className="tab-number">0{index + 1}</span>{label}</span>
               </button>
