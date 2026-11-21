@@ -4,89 +4,47 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Game Boy green LCD palette */
+    --gb-green: #6B8E23;
+    --gb-green-light: #9BC53D;
+    --gb-green-dark: #4A6B1A;
+    --gb-screen: #8BAC0F;
+    --gb-screen-light: #9BBC0F;
+    --gb-screen-dark: #306230;
+    --gb-screen-darker: #0F380F;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* SNES grey palette */
+    --snes-grey: #C0C0C0;
+    --snes-grey-light: #E0E0E0;
+    --snes-grey-dark: #808080;
+    --snes-grey-darker: #505050;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    /* SNES accent colors */
+    --snes-purple: #6B5B95;
+    --snes-magenta: #E91E63;
+    --snes-cyan: #00BCD4;
+    --snes-yellow: #FFC107;
+    --snes-red: #F44336;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Background */
+    --bg-dark: #1A1A2E;
+    --bg-darker: #0F0F1E;
+    --bg-panel: #252540;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Text */
+    --text-light: #E8E8E8;
+    --text-muted: #A0A0B0;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Borders */
+    --border-color: #404060;
+    --border-light: #505070;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Shadows */
+    --shadow-dark: rgba(0, 0, 0, 0.5);
+    --shadow-glow: rgba(107, 142, 35, 0.3);
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
+    /* Radius */
     --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
@@ -97,5 +55,179 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Courier New', monospace;
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+  }
+}
+
+@layer components {
+  /* Retro panel styling */
+  .retro-panel {
+    background: var(--bg-panel);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      0 4px 8px var(--shadow-dark);
+  }
+
+  /* Game Boy screen styling */
+  .gb-screen {
+    background: var(--gb-screen);
+    border: 3px solid var(--gb-screen-darker);
+    border-radius: 4px;
+    box-shadow:
+      inset 0 2px 4px rgba(0, 0, 0, 0.3),
+      0 0 20px var(--shadow-glow);
+    image-rendering: pixelated;
+  }
+
+  /* SNES button styling */
+  .snes-button {
+    background: var(--snes-grey);
+    border: 2px solid var(--snes-grey-darker);
+    border-radius: 4px;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      0 2px 4px var(--shadow-dark);
+    transition: all 0.1s ease;
+  }
+
+  .snes-button:active {
+    transform: translateY(2px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      0 1px 2px var(--shadow-dark);
+  }
+
+  /* Retro slider styling */
+  .retro-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    background: var(--snes-grey-dark);
+    border-radius: 4px;
+    outline: none;
+    border: 1px solid var(--snes-grey-darker);
+  }
+
+  .retro-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--gb-green);
+    border: 2px solid var(--gb-green-dark);
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px var(--shadow-dark);
+  }
+
+  .retro-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: var(--gb-green);
+    border: 2px solid var(--gb-green-dark);
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px var(--shadow-dark);
+  }
+
+  /* Pixel text styling */
+  .pixel-text {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* Glow effect */
+  .glow-green {
+    box-shadow: 0 0 10px var(--gb-green), 0 0 20px var(--gb-green);
+  }
+
+  .glow-magenta {
+    box-shadow: 0 0 10px var(--snes-magenta), 0 0 20px var(--snes-magenta);
+  }
+
+  .glow-cyan {
+    box-shadow: 0 0 10px var(--snes-cyan), 0 0 20px var(--snes-cyan);
+  }
+
+  /* Grid background */
+  .grid-bg {
+    background-image:
+      linear-gradient(rgba(64, 64, 96, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(64, 64, 96, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  /* Scanline effect */
+  .scanlines::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.1) 2px,
+      rgba(0, 0, 0, 0.1) 4px
+    );
+    pointer-events: none;
+  }
+}
+
+@layer utilities {
+  .text-gb-green {
+    color: var(--gb-green);
+  }
+
+  .text-gb-green-light {
+    color: var(--gb-green-light);
+  }
+
+  .text-snes-magenta {
+    color: var(--snes-magenta);
+  }
+
+  .text-snes-cyan {
+    color: var(--snes-cyan);
+  }
+
+  .bg-gb-green {
+    background-color: var(--gb-green);
+  }
+
+  .bg-gb-screen {
+    background-color: var(--gb-screen);
+  }
+
+  .bg-snes-grey {
+    background-color: var(--snes-grey);
+  }
+
+  .bg-snes-magenta {
+    background-color: var(--snes-magenta);
+  }
+
+  .bg-snes-cyan {
+    background-color: var(--snes-cyan);
+  }
+
+  .border-gb-green {
+    border-color: var(--gb-green);
+  }
+
+  .border-snes-magenta {
+    border-color: var(--snes-magenta);
+  }
+
+  .border-snes-cyan {
+    border-color: var(--snes-cyan);
   }
 }
