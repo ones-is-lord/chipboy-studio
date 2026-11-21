@@ -117,6 +117,16 @@
 .song-block.block-unavailable { opacity: .25; }
 .song-block.block-drag-overlay { cursor: grabbing; border: 2px solid #344b2a; box-shadow: 3px 5px 0 #344b2a60; opacity: 1; }
 .block-wave i { width: 2px; background: currentColor; opacity: .65; }
+.block-slot { background: #afc07b55; border: 1px dashed #8caa5c; }
+.block-slot.block-drop-target { outline: 3px solid var(--berry); outline-offset: 1px; background: #d4e79e; }
+.block-slot.block-unavailable { opacity: .25; }
+.piano-key { background: #e9efcc; color: #344b2a; border-color: #a0b378; box-shadow: inset -2px 0 0 #a2b87e; }
+.piano-key.black-key { background: #415b32; color: #f2f7d8; border-color: #344b2a; }
+.piano-key:active { background: #933d60; color: #fff3e7; }
+.piano-grid { background-color: #bdcc8b; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='144' height='22'%3E%3Cpath d='M0 0V22' stroke='%23788f53' stroke-width='2'/%3E%3Cpath d='M36 0V22M72 0V22M108 0V22M0 21.5H144' stroke='%2393a966' stroke-width='1'/%3E%3C/svg%3E"); }
+.piano-note { background: #526c37; color: #eff7cc; border: 1px solid #344b2a; box-shadow: inset 0 1px 0 #8ba564; touch-action: none; user-select: none; }
+.piano-note.note-selected { background: #833452; color: #fff3e7; border-color: #662640; box-shadow: inset 0 1px 0 #b56584; z-index: 10; }
+.piano-note:focus-visible { outline: 2px solid var(--berry); outline-offset: 1px; }
 .bar-current { background: #415b31; color: #e0edb4; border-radius: 3px; }
 .editor-panel { border: 1px solid #b6bba8; background: #eaeadd; box-shadow: inset 1px 2px 0 #fffef3, 0 2px 0 #bdc1ae; }
 .section-heading { color: var(--case-ink); font-weight: 700; font-size: 10px; letter-spacing: .06em; }
