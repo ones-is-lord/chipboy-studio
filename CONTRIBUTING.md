@@ -20,6 +20,15 @@ pnpm dev
 
 The app runs at <http://localhost:8080>. See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for host allowlists, base paths and test details.
 
+Android changes also need JDK 21 and the Android SDK. Build the APK with:
+
+```bash
+pnpm android:sync
+pnpm android:debug
+```
+
+See [docs/ANDROID.md](docs/ANDROID.md) for signing and device install steps.
+
 ## Make a change
 
 1. Create a branch from `main`:
@@ -54,7 +63,7 @@ The app runs at <http://localhost:8080>. See [docs/DEVELOPMENT.md](docs/DEVELOPM
 - **Accessible controls.** Use real buttons, labels and focus states. Keep `prefers-reduced-motion` working.
 - **No hidden network calls.** Audio and project data stay on the device.
 - **No new runtime dependencies without a reason.** The bundle is intentionally small.
-- **No secrets in the repository.** There are no server secrets; do not add any.
+- **No secrets in the repository.** There are no server secrets. Never commit a keystore, signing password or signed APK. Use the documented environment variables or GitHub Actions secrets.
 
 ## Code style
 
@@ -74,6 +83,7 @@ The app runs at <http://localhost:8080>. See [docs/DEVELOPMENT.md](docs/DEVELOPM
 | WAV encoding or sample processing | Unit test in `src/lib/wav.test.ts` or `sample-processing.test.ts` |
 | Audio scheduling | Unit test in `src/lib/audio-engine.test.ts` |
 | UI behavior | Manual browser check plus screenshots in the pull request |
+| Android shell, permissions or native share | Manual APK install on a device or emulator, plus `pnpm android:lint` |
 
 If a bug is fixed, add a regression test where the logic is testable. If the bug is purely visual, describe the before and after and include screenshots.
 
@@ -81,6 +91,7 @@ If a bug is fixed, add a regression test where the logic is testable. If the bug
 
 - [ ] The change is focused and described.
 - [ ] `pnpm check` passes.
+- [ ] `pnpm audit` reports no known vulnerabilities.
 - [ ] New behavior has tests or a clear manual verification note.
 - [ ] Documentation is updated when needed.
 - [ ] UI changes include screenshots at desktop and mobile widths.

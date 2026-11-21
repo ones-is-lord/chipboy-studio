@@ -1,11 +1,15 @@
 # Chipboy Studio
 
-**A pocket-sized chiptune studio that runs entirely in your browser.**
+**A pocket-sized chiptune studio that runs entirely in your browser and on Android.**
+
+[**Play in your browser**](https://ones-is-lord.github.io/chipboy-studio/) · [**Download the Android APK**](https://github.com/ones-is-lord/chipboy-studio/releases/latest)
 
 [![CI](https://github.com/ones-is-lord/chipboy-studio/actions/workflows/ci.yml/badge.svg)](https://github.com/ones-is-lord/chipboy-studio/actions/workflows/ci.yml)
+[![Android](https://github.com/ones-is-lord/chipboy-studio/actions/workflows/android.yml/badge.svg)](https://github.com/ones-is-lord/chipboy-studio/actions/workflows/android.yml)
 [![Deploy](https://github.com/ones-is-lord/chipboy-studio/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/ones-is-lord/chipboy-studio/actions/workflows/deploy-pages.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-933d60.svg)](LICENSE)
 [![React 19](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev)
+[![Android 7+](https://img.shields.io/badge/Android-7.0%2B-3ddc84.svg)](#android-app)
 [![Web Audio](https://img.shields.io/badge/Web%20Audio-API-658342.svg)](https://developer.mozilla.org/docs/Web/API/Web_Audio_API)
 
 ![Chipboy Studio, a cream and green handheld console interface with a step sequencer](docs/screenshot.png)
@@ -18,12 +22,14 @@ Built with React 19, TypeScript, Vite, Tailwind CSS and the Web Audio API. Style
 
 - [Features](#features)
 - [Quick start](#quick-start)
+- [Android app](#android-app)
 - [Scripts](#scripts)
 - [Keyboard shortcuts](#keyboard-shortcuts)
 - [How it works](#how-it-works)
 - [Project files and privacy](#project-files-and-privacy)
 - [Browser support](#browser-support)
 - [Deployment](#deployment)
+- [F-Droid](#f-droid)
 - [Testing and quality](#testing-and-quality)
 - [Documentation](#documentation)
 - [Contributing](#contributing)
@@ -87,7 +93,8 @@ Built with React 19, TypeScript, Vite, Tailwind CSS and the Web Audio API. Style
 - Self-hosted pixel fonts (Press Start 2P and Pixelify Sans) and a rounded body font (Nunito). No Google Fonts request at runtime.
 - Bolder pixel typography with layered letter shadows, scanline and glass-sheen overlays, LCD readouts and a reduced-motion mode that respects `prefers-reduced-motion`.
 - Responsive layout, keyboard navigation and visible focus states.
-- Installable web app manifest and social preview image.
+- Installable web app manifest, offline service worker and social preview image.
+- Native Android shell with an offline APK, Android share sheet, haptics, splash screen and launcher icon.
 
 ## Quick start
 
@@ -116,6 +123,32 @@ To let a container or tunnel host reach the dev server, pass the hostnames expli
 VITE_ALLOWED_HOSTS=my-preview.example.com pnpm dev
 ```
 
+## Android app
+
+The Android build is a complete offline app, not a browser shortcut. Capacitor bundles the web runtime, all assets and the native share, status-bar, splash and haptics plugins into one APK. The app never needs a network connection to make music.
+
+- **Package:** `io.github.onesislord.chipboy`
+- **Minimum Android:** 7.0 (API 24)
+- **Target Android:** 16 (API 36)
+- **APK size:** about 4.3 MB
+- **Permissions:** microphone, vibration and audio settings only; no internet permission
+- **Download:** [latest GitHub release](https://github.com/ones-is-lord/chipboy-studio/releases/latest)
+
+To install, download the `.apk`, open it on the device, and allow installs from your browser or file manager when Android asks. The release APK is signed for sideloading; F-Droid builds and signs its own copy from the same source.
+
+Build it locally:
+
+```bash
+pnpm install
+pnpm android:sync      # build the web bundle and copy it into android/
+pnpm android:debug     # debug APK: android/app/build/outputs/apk/debug/app-debug.apk
+pnpm android:release   # signed release APK, if signing variables are set
+```
+
+For a signed release, set `CHIPBOY_KEYSTORE_PATH`, `CHIPBOY_KEYSTORE_PASSWORD`, `CHIPBOY_KEY_ALIAS` and `CHIPBOY_KEY_PASSWORD`. The GitHub release workflow does this automatically from repository secrets.
+
+See [docs/ANDROID.md](docs/ANDROID.md) for the full Android build, signing, emulator and troubleshooting guide.
+
 ## Scripts
 
 | Command | What it does |
@@ -129,6 +162,12 @@ VITE_ALLOWED_HOSTS=my-preview.example.com pnpm dev
 | `pnpm test` | Run the Vitest suite once. |
 | `pnpm test:watch` | Run Vitest in watch mode. |
 | `pnpm check` | Lint, type-check, test and build in one command. This is what CI runs. |
+| `pnpm android:sync` | Build the web bundle and sync it into the Android project. |
+| `pnpm android:debug` | Build an installable debug APK. |
+| `pnpm android:release` | Build a release APK, signed when the signing variables are set. |
+| `pnpm android:lint` | Run Android Lint. |
+| `pnpm android:icons` | Regenerate Android launcher icons and splash screens. |
+| `pnpm android:open` | Open the Android project in Android Studio. |
 
 Regenerate the favicon, app icons and social image after changing the pixel artwork:
 
@@ -205,7 +244,18 @@ The build is a static SPA. Any static host works. The repository includes:
 
 For Vercel, import the repository and keep the default build command `pnpm build` and output directory `dist`. For Netlify, use the same command and directory; `public/_headers` is copied into the build. For GitHub Pages, enable **Settings → Pages → Source: GitHub Actions** and run the deploy workflow; it sets `VITE_BASE_PATH` to the repository name and adds a `404.html` fallback.
 
+Android releases are built by `.github/workflows/release.yml`. The workflow runs the full check, builds a signed APK from the repository secrets, verifies the signature and attaches both the APK and the static ZIP to the GitHub release.
+
 See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for custom domains, base paths, headers and troubleshooting.
+
+## F-Droid
+
+The repository ships F-Droid-compatible metadata:
+
+- `fastlane/metadata/android/en-US/` with the title, summary, description, changelog, icon, feature graphic and screenshots.
+- `fdroid/io.github.onesislord.chipboy.yml`, a ready-to-copy build recipe for the [fdroiddata](https://gitlab.com/fdroid/fdroiddata) repository.
+
+Chipboy Studio is MIT licensed, has no tracking, no ads and no network dependency. The Android build uses only free and open-source libraries and can be built from source with the Android SDK and the committed pnpm lockfile. See [docs/FDROID.md](docs/FDROID.md) for the submission checklist and the exact steps to open an fdroiddata merge request.
 
 ## Testing and quality
 
@@ -220,6 +270,8 @@ The CI workflow runs the same command on every push and pull request, plus a pro
 ## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md)
+- [Android build and install](docs/ANDROID.md)
+- [F-Droid compatibility and submission](docs/FDROID.md)
 - [Inspired by MTV Music Generator](docs/MUSIC-GENERATOR.md)
 - [Project file format](docs/PROJECT_FORMAT.md)
 - [Development guide](docs/DEVELOPMENT.md)

@@ -2,6 +2,26 @@
 
 Chipboy Studio is a static single-page application. There is no backend, no authentication and no network request after the bundle loads. Everything runs on the user's device.
 
+## Shells
+
+The same `dist/` bundle ships in three forms:
+
+| Shell | What it adds |
+| --- | --- |
+| Web | Vite build served by any static host. |
+| PWA | `vite-plugin-pwa` service worker precaches the app shell for offline use and install. |
+| Android | Capacitor project in `android/` bundles `dist/` in the APK and adds native share, haptics, status bar, splash screen and microphone permission. |
+
+`src/lib/native.ts` is the only module that imports Capacitor plugins. It exposes `initNativeShell`, `saveBlob`, `shareLink` and `tapHaptic`, and falls back to browser behavior when `Capacitor.isNativePlatform()` is false. Components never import native plugins directly.
+
+The Android build flow is:
+
+```text
+src/ -> vite build -> dist/ -> cap sync android -> android/app/src/main/assets/public/ -> Gradle -> APK
+```
+
+The APK does not use the service worker or the network. It loads the bundled assets from Capacitor's local WebView origin.
+
 ## Layers
 
 ```mermaid

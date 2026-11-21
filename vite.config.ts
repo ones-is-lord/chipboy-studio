@@ -1,12 +1,26 @@
 import path from "node:path";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
 
 const allowedHosts = process.env.VITE_ALLOWED_HOSTS?.split(",").map(host => host.trim()).filter(Boolean);
 
 export default defineConfig({
   base: process.env.VITE_BASE_PATH ?? "/",
-  plugins: [react()],
+  plugins: [
+    react(),
+    VitePWA({
+      registerType: "autoUpdate",
+      injectRegister: "auto",
+      manifest: false,
+      includeAssets: ["favicon.ico", "favicon.svg", "apple-touch-icon.png", "icons/*.png", "og-image.png"],
+      workbox: {
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,webmanifest,woff,woff2}"],
+        cleanupOutdatedCaches: true,
+        navigateFallback: "index.html",
+      },
+    }),
+  ],
   resolve: {
     alias: { "@": path.resolve(import.meta.dirname, "./src") },
   },

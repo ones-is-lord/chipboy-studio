@@ -29,3 +29,14 @@ dist-ssr
 /playwright/.cache/
 .last-run.json
 .dyad/
+
+# Android / Capacitor
+android/local.properties
+android/.gradle/
+android/build/
+android/app/build/
+android/.idea/
+*.jks
+*.keystore
+*.apk
+*.aab

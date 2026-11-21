@@ -4,6 +4,35 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-11-21
+
+### Added
+- Android app built with Capacitor 8, packaged as `io.github.onesislord.chipboy` for Android 7.0 and newer.
+- Offline APK that bundles the full studio, fonts and sound engine. No network is required to make music.
+- Native Android share sheet for WAV exports, project JSON files and song links.
+- Light haptic feedback on workspace tab changes, plus native status bar, splash screen and launcher icon.
+- Android release workflow that builds, signs, verifies and publishes the APK alongside the static ZIP.
+- Android CI workflow that builds a debug APK on every push and pull request.
+- PWA service worker and offline precache for the browser build.
+- F-Droid-compatible fastlane metadata, screenshots, feature graphic and a ready-to-copy `fdroiddata` recipe.
+- `docs/ANDROID.md` and `docs/FDROID.md` with build, signing, install, release and submission instructions.
+- `pnpm android:sync`, `android:debug`, `android:release`, `android:lint`, `android:icons` and `android:open` scripts.
+
+### Changed
+- Public share links now use the deployed GitHub Pages URL when created inside the Android app, instead of the local `https://localhost` WebView origin.
+- The app shell respects Android safe-area insets and the system status and navigation bar colours.
+- ESLint ignores the generated Android project so native Gradle output cannot break the web check.
+- `pnpm check` now uses pnpm consistently.
+
+### Fixed
+- Gradle release signing no longer collides with the `keyAlias` and `keyPassword` property names.
+- Android builds no longer depend on the debug keystore for release artifacts.
+
+### Security
+- Release signing keys are stored only in GitHub Actions secrets and a private local directory, never in the repository.
+- Android release builds disable cleartext traffic, request no internet permission and disable app backup.
+- `pnpm audit` reports no known vulnerabilities; the PWA build pins `workbox-build`'s `glob` dependency to a patched release.
+
 ## [1.1.0] - 2026-11-21
 
 ### Added

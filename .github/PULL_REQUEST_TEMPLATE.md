@@ -25,10 +25,12 @@
 ## Checklist
 
 - [ ] `pnpm check` passes locally.
+- [ ] Android changes build with `pnpm android:debug` and pass `pnpm android:lint`.
 - [ ] New behavior has tests, or this pull request explains why it cannot be unit-tested.
 - [ ] Documentation is updated when public behavior, project format or deployment changes.
 - [ ] UI changes include screenshots and work with `prefers-reduced-motion`.
-- [ ] No secrets, credentials or personal data are included.
+- [ ] Android changes include a device or emulator check, including offline behavior when relevant.
+- [ ] No secrets, credentials, keystores or personal data are included.
 - [ ] No third-party tracker, upload path or remote script is introduced.
 - [ ] The change is focused; unrelated refactors are in a separate pull request.
 
