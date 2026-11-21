@@ -1,430 +1,169 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=VT323&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* Game Boy Green Palette */
-    --gb-green: 79 60% 35%;
-    --gb-green-light: 80 55% 60%;
-    --gb-green-dark: 80 45% 20%;
-    --gb-green-dim: 80 30% 15%;
-    
-    /* SNES Grey Palette */
-    --snes-grey: 0 0% 63%;
-    --snes-grey-light: 0 0% 75%;
-    --snes-grey-dark: 0 0% 40%;
-    --snes-grey-darker: 0 0% 25%;
-    
-    /* Deep Indigo Background */
-    --indigo: 240 50% 10%;
-    --indigo-light: 240 40% 15%;
-    
-    /* Accent Colors */
-    --magenta: 300 100% 50%;
-    --cyan: 180 100% 50%;
-    
-    /* System Colors */
-    --background: var(--indigo);
-    --foreground: var(--gb-green-light);
-    --card: var(--indigo-light);
-    --card-foreground: var(--gb-green-light);
-    --popover: var(--indigo-light);
-    --popover-foreground: var(--gb-green-light);
-    --primary: var(--gb-green);
-    --primary-foreground: var(--indigo);
-    --secondary: var(--snes-grey-dark);
-    --secondary-foreground: var(--gb-green-light);
-    --muted: var(--snes-grey-darker);
-    --muted-foreground: var(--snes-grey);
-    --accent: var(--magenta);
-    --accent-foreground: var(--indigo);
-    --destructive: 0 84% 60%;
-    --destructive-foreground: var(--indigo);
-    --border: var(--snes-grey-dark);
-    --input: var(--snes-grey-dark);
-    --ring: var(--gb-green);
-    --radius: 0.375rem;
+    --case: #e2e0d3;
+    --case-light: #f3f1e7;
+    --case-border: #b7b7a6;
+    --case-ink: #41473d;
+    --case-muted: #666c5e;
+    --berry: #933d60;
+    --berry-dark: #672541;
+    --lcd: #bdcc8b;
+    --lcd-dark: #344b2a;
+    --lcd-line: #96aa68;
+    --background: 63 15% 83%;
+    --foreground: 94 10% 27%;
+    --card: 60 20% 90%;
+    --card-foreground: 94 10% 27%;
+    --popover: 60 20% 94%;
+    --popover-foreground: 94 10% 27%;
+    --primary: 336 42% 41%;
+    --primary-foreground: 55 40% 96%;
+    --secondary: 62 14% 83%;
+    --secondary-foreground: 94 10% 27%;
+    --muted: 62 14% 83%;
+    --muted-foreground: 85 7% 39%;
+    --accent: 82 30% 68%;
+    --accent-foreground: 94 28% 23%;
+    --destructive: 350 65% 45%;
+    --destructive-foreground: 55 40% 96%;
+    --border: 63 10% 67%;
+    --input: 63 10% 67%;
+    --ring: 336 42% 41%;
+    --radius: .75rem;
+    --gb-green: 94 28% 23%;
+    --gb-green-light: 76 35% 69%;
+    --gb-green-dark: 94 28% 23%;
+    --gb-green-dim: 76 35% 69%;
+    --snes-grey: 85 7% 39%;
+    --snes-grey-light: 60 20% 94%;
+    --snes-grey-dark: 63 10% 67%;
+    --snes-grey-darker: 62 14% 83%;
+    --indigo: 94 10% 27%;
+    --indigo-light: 60 20% 90%;
+    --magenta: 336 42% 41%;
+    --cyan: 178 35% 30%;
   }
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground; font-family: 'Space Grotesk', sans-serif; }
+  button, input, select { font: inherit; }
+  button { -webkit-tap-highlight-color: transparent; }
+  button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--berry); outline-offset: 3px; }
+  ::selection { background: #933d60; color: #fff9e9; }
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  
-  body {
-    @apply bg-background text-foreground font-mono antialiased;
-    background-image: 
-      linear-gradient(rgba(128, 128, 128, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(128, 128, 128, 0.03) 1px, transparent 1px);
-    background-size: 8px 8px;
-  }
-  
-  /* Pixel font for retro feel */
-  @font-face {
-    font-family: 'Pixel';
-    src: local('monospace');
-  }
-  
-  .font-pixel {
-    font-family: 'VT323', 'Press Start 2P', monospace;
-    letter-spacing: 0.05em;
-  }
+.studio-page {
+  background-color: #d4d7c9;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Crect x='1' y='1' width='1' height='1' fill='%2389917a' opacity='.15'/%3E%3C/svg%3E");
 }
+.font-pixel { font-family: 'VT323', monospace; }
+.pixel-art { image-rendering: pixelated; flex-shrink: 0; }
+.brand-title { font-family: 'VT323', monospace; color: #424d38; font-size: 38px; line-height: .85; letter-spacing: -.8px; }
+.brand-title span { margin-left: 5px; color: var(--berry); }
+.brand-title sup { font-family: sans-serif; font-size: 9px; vertical-align: top; margin-left: 4px; }
+.brand-icon { display: flex; justify-content: center; align-items: center; width: 50px; height: 54px; border: 1px solid #bdc3ae; border-radius: 10px 10px 16px 10px; background: #e4e7d7; box-shadow: inset 1px 2px 0 #f6f8eb, 2px 3px 0 #b9c0ac; }
+.power-led { width: 6px; height: 6px; background: #658342; border-radius: 50%; box-shadow: 0 0 0 3px #65834218; }
+.console-shell { background: var(--case); border: 1px solid #a8ad99; border-radius: 20px 20px 48px 20px; box-shadow: inset 2px 3px 0 #f9f7ef, inset -3px -4px 0 #c0c1b1, 0 7px 0 #a8ae99, 0 9px 0 #89917d, 0 20px 35px #4c5d3e24; }
+.case-label { color: var(--case-muted); font-size: 10px; font-weight: 700; letter-spacing: .15em; }
+.screw { position: absolute; width: 7px; height: 7px; border: 1px solid #a7ab9a; border-radius: 100%; background: #c9cbbd; box-shadow: inset 0 1px 1px #9c9f8e, 0 1px 0 #faf8ee; }
+.screw::after { content: ''; position: absolute; top: 2px; left: 1px; height: 1px; width: 3px; background: #919685; transform: rotate(-35deg); }
+.screw-tl { left: 10px; top: 10px; }.screw-tr { right: 10px; top: 10px; }
+.speaker-mini { display: flex; gap: 4px; transform: skew(-12deg); }
+.speaker-mini i { display: block; width: 3px; height: 17px; background: #a4a998; border-radius: 3px; box-shadow: inset 1px 1px 0 #878f7d, 1px 1px 0 #f3f2e7; }
+.console-tab { color: #626b59; background: #dadbce; border: 1px solid #b6bba8; box-shadow: inset 1px 2px 0 #f9f9ed, inset -1px -2px 0 #c1c5b5, 0 3px 0 #a5ac98; transition: transform 100ms, background 100ms; }
+.console-tab:hover { background: #e8e9dc; }
+.console-tab.selected { color: #fff3e7; background: var(--berry); border-color: #74304d; box-shadow: inset 1px 2px 0 #b96787, inset -1px -2px 0 #77304d, 0 3px 0 #5f263e; }
+.tab-number { font-family: 'VT323', monospace; font-size: 17px; opacity: .7; }
+.console-tab:active, .hardware-button:active, .play-button:active { transform: translateY(2px); }
+.cartridge-badge { padding: 6px; background: #cbd2b5; border: 1px solid #b2bb99; border-radius: 7px 7px 12px 7px; box-shadow: inset 1px 1px 0 #e8ecd7; }
+.song-name { color: var(--case-ink); border-bottom: 1px dashed transparent; line-height: 1.5; }
+.song-name:hover { border-bottom-color: #b0b49f; }
+.hardware-button { background: #e9e8dc !important; color: var(--case-ink) !important; border: 1px solid #b6b9a9; box-shadow: inset 1px 2px 0 #fffdf5, inset -1px -1px 0 #d3d4c5, 0 2px 0 #aab09c; font-weight: 700; letter-spacing: .025em; transition: transform 100ms, background 100ms; }
+.hardware-button:hover { background: #f4f3e8 !important; }
+.hardware-button.engaged { color: var(--berry) !important; background: #eee4e4 !important; }
+.transport { background: #d1d3c5; border: 1px solid #b9bdaa; box-shadow: inset 0 2px 3px #9da38d38, 0 1px 0 #f8f6ec; color: var(--case-ink); }
+.play-button { background: var(--berry) !important; color: #fff4e7 !important; border: 1px solid #74304d; box-shadow: inset 1px 2px 0 #c27291, inset -1px -2px 0 #702945, 0 3px 0 #642640; }
+.play-button:hover { background: #a4486d !important; }
+.play-button.is-playing { box-shadow: inset 1px 2px 0 #732943, 0 1px 0 #f1ecdf; }
+.readout { background: #c3cc9f; color: #3c502c; border: 1px solid #9ea881; box-shadow: inset 1px 2px 2px #7c896145, 0 1px 0 #f0f1e1; font-family: monospace; }
+.readout input::-webkit-inner-spin-button { appearance: none; }
+.readout-divider { width: 1px; height: 30px; background: #9fac81; }
+.console-slider > span:first-child { height: 5px; background: #acb29d; box-shadow: inset 0 1px 2px #6d775b50, 0 1px 0 #f8f8ed; }
+.console-slider > span:first-child > span { background: #778366; }
+.console-slider [role='slider'] { width: 18px; height: 14px; border: 1px solid #929b81; border-radius: 3px; background: #eeefe3; box-shadow: inset 0 2px 0 #fffef7, 0 2px 0 #8b957d; }
+.screen-bezel { background: #6a7166; border: 1px solid #50594b; box-shadow: inset 1px 2px 0 #858c7e, inset -2px -3px 0 #515a4d, 0 2px 0 #f6f4e8; }
+.bezel-label { font-size: 9px; font-weight: 600; color: #f0efe2; letter-spacing: .16em; }
+.game-screen { position: relative; background: var(--lcd); color: var(--lcd-dark); border: 2px solid #465c32; box-shadow: inset 2px 3px 0 #7c9259, inset -2px -2px 0 #d5e5aa, 0 1px 0 #8b957c; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='3' height='3'%3E%3Crect width='1' height='1' fill='%23344b2a' opacity='.08'/%3E%3C/svg%3E"); }
+.lcd-heading { text-shadow: 1px 1px 0 #344b2a22; }
+.arrangement-row { display: grid; grid-template-columns: 155px repeat(8, minmax(0, 1fr)); align-items: center; gap: 6px; }
+.lcd-mute { border: 1px solid #97ab6b; }
+.lcd-mute:hover { background: #a0b575; }
+.song-block { background: #b0c17d; border: 1px dashed #8caa5c; transition: background 90ms; }
+.song-block:hover { background: #a2b56d; }
+.song-block.filled { background: #526c37; color: #e5f2b8; border: 1px solid #415b2c; box-shadow: inset 1px 1px 0 #7f9855, 1px 2px 0 #9db474; }
+.song-block.variant { background: #9aae6b; color: #25381d; border-color: #738b46; box-shadow: inset 1px 1px 0 #bccd8e, 1px 2px 0 #9db474; }
+.song-block.block-selected { outline: 2px solid #314926; outline-offset: 2px; }
+.song-block.block-selected::after { content: ''; position: absolute; bottom: -5px; left: calc(50% - 3px); width: 6px; height: 4px; background: #314926; }
+.song-block.block-playing { border-bottom: 3px solid #ecf7bb; }
+.song-block.muted { opacity: .4; }
+.block-wave i { width: 2px; background: currentColor; opacity: .65; }
+.bar-current { background: #415b31; color: #e0edb4; border-radius: 3px; }
+.editor-panel { border: 1px solid #b6bba8; background: #eaeadd; box-shadow: inset 1px 2px 0 #fffef3, 0 2px 0 #bdc1ae; }
+.section-heading { color: var(--case-ink); font-weight: 700; font-size: 10px; letter-spacing: .06em; }
+.section-index { border: 1px solid #bbc0ac; border-radius: 4px; padding: 3px 5px; color: #717b63; }
+.sound-card { background: #dfe2d0; border: 1px solid #c3c9b1; box-shadow: inset 1px 1px 0 #f3f5e7; }
+.sound-icon { padding: 4px; border: 1px solid #b4bf97; border-radius: 6px; background: #ced8ac; }
+.wave-preview { padding: 3px 5px; color: #678049; background: #cbd6a8; border: 1px solid #b2bd95; box-shadow: inset 0 1px 2px #76865925; }
+.pattern-select { border: 1px solid #b9bda9; background: #dadfcb; color: #5b674c; box-shadow: inset 1px 1px 0 #f8fae9, 0 2px 0 #afb7a0; }
+.pattern-select.active { background: var(--berry); border-color: #74304d; color: #fff3e9; box-shadow: inset 1px 1px 0 #b86182, 0 2px 0 #6d2c46; }
+.step-pad { background: #d0d5c2; border: 1px solid #aeb6a0; box-shadow: inset 1px 2px 0 #e9eddb, inset -1px -2px 0 #bfc7b0, 0 3px 0 #a2ad94; transition: transform 80ms, background 80ms; }
+.step-pad:hover { background: #dee4cc; }
+.step-pad.on { background: #829664; border-color: #677d4e; box-shadow: inset 1px 2px 0 #a7b987, inset -1px -2px 0 #6c8354, 0 3px 0 #536b42; }
+.step-light { width: 5px; height: 18px; border-radius: 1px; background: #aeb99e; box-shadow: inset 1px 1px 0 #97a689; }
+.step-pad.on .step-light { background: #e1edb5; box-shadow: 0 0 5px #e1edb530; }
+.step-pad.current { outline: 2px solid var(--berry); outline-offset: 2px; }
+.step-pad:active { transform: translateY(2px); }
+.mini-dpad { width: 25px; height: 25px; background: #868e7c; clip-path: polygon(33% 0, 66% 0, 66% 33%, 100% 33%, 100% 66%, 66% 66%, 66% 100%, 33% 100%, 33% 66%, 0 66%, 0 33%, 33% 33%); }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-::-webkit-scrollbar-track {
-  background: hsl(var(--indigo));
-}
-::-webkit-scrollbar-thumb {
-  background: hsl(var(--snes-grey-dark));
-  border: none;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--snes-grey));
-}
-
-/* Retro panel styles */
-.panel {
-  background: hsl(var(--card));
-  border: 2px solid hsl(var(--snes-grey-dark));
-  position: relative;
-  box-shadow: 
-    inset 2px 2px 0 rgba(255,255,255,0.1),
-    inset -2px -2px 0 rgba(0,0,0,0.3),
-    4px 4px 0 rgba(0,0,0,0.2);
-}
-
-.panel-raised {
-  background: hsl(var(--snes-grey-dark));
-  border: 2px solid hsl(var(--snes-grey-light));
-  box-shadow: 
-    inset -2px -2px 0 rgba(0,0,0,0.3),
-    inset 2px 2px 0 rgba(255,255,255,0.1);
-}
-
-.panel-recessed {
-  background: hsl(var(--snes-grey-darker));
-  border: 2px solid hsl(var(--snes-grey));
-  box-shadow: 
-    inset 2px 2px 0 rgba(0,0,0,0.4),
-    inset -2px -2px 0 rgba(255,255,255,0.05);
-}
-
-/* LCD screen effect */
-.lcd-screen {
-  background: hsl(var(--gb-green-dim));
-  border: 2px solid hsl(var(--gb-green-dark));
-  position: relative;
-  overflow: hidden;
-  box-shadow: 
-    inset 0 0 20px rgba(0,0,0,0.5),
-    inset 2px 2px 0 rgba(155, 188, 15, 0.1),
-    inset -2px -2px 0 rgba(0,0,0,0.3);
-}
-
-.lcd-screen::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0,0,0,0.1) 2px,
-    rgba(0,0,0,0.1) 4px
-  );
-  pointer-events: none;
-  z-index: 10;
-}
-
-.lcd-screen::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.3) 100%);
-  pointer-events: none;
-  z-index: 11;
-}
-
-/* Retro button */
-.btn-retro {
-  padding: 0.5rem 1rem;
-  font-family: 'VT323', 'Press Start 2P', monospace;
-  font-size: 0.75rem;
-  border: 2px solid hsl(var(--snes-grey));
-  transition: all 75ms ease;
-  background: hsl(var(--snes-grey-dark));
-  border-color: hsl(var(--snes-grey));
-  color: hsl(var(--gb-green-light));
-  box-shadow: 
-    inset -2px -2px 0 rgba(0,0,0,0.3),
-    inset 2px 2px 0 rgba(255,255,255,0.1);
-}
-
-.btn-retro:hover {
-  background: hsl(var(--snes-grey));
-  border-color: hsl(var(--snes-grey-light));
-}
-
-.btn-retro:active {
-  background: hsl(var(--snes-grey-darker));
-  border-color: hsl(var(--snes-grey));
-  box-shadow: 
-    inset 2px 2px 0 rgba(0,0,0,0.4),
-    inset -2px -2px 0 rgba(255,255,255,0.05);
-}
-
-.btn-retro.primary {
-  background: hsl(var(--gb-green));
-  border-color: hsl(var(--gb-green-dark));
-  color: hsl(var(--indigo));
-  box-shadow: 
-    inset -2px -2px 0 rgba(0,0,0,0.3),
-    inset 2px 2px 0 rgba(255,255,255,0.1);
-}
-
-.btn-retro.primary:hover {
-  background: hsl(var(--gb-green-light));
-  border-color: hsl(var(--gb-green));
-}
-
-.btn-retro.primary:active {
-  background: hsl(var(--gb-green-dark));
-  border-color: hsl(var(--gb-green-dark));
-  box-shadow: 
-    inset 2px 2px 0 rgba(0,0,0,0.4),
-    inset -2px -2px 0 rgba(255,255,255,0.05);
-}
-
-.btn-retro.accent {
-  background: hsl(var(--magenta));
-  border-color: hsl(var(--magenta) / 0.8);
-  color: hsl(var(--indigo));
-  box-shadow: 
-    inset -2px -2px 0 rgba(0,0,0,0.3),
-    inset 2px 2px 0 rgba(255,255,255,0.1);
-}
-
-.btn-retro.accent:hover {
-  background: hsl(var(--magenta) / 0.9);
-  border-color: hsl(var(--magenta));
-}
-
-.btn-retro.accent:active {
-  background: hsl(var(--magenta) / 0.7);
-  border-color: hsl(var(--magenta) / 0.6);
-  box-shadow: 
-    inset 2px 2px 0 rgba(0,0,0,0.4),
-    inset -2px -2px 0 rgba(255,255,255,0.05);
-}
-
-/* Slider/fader styles */
-.fader-track {
-  background: hsl(var(--snes-grey-darker));
-  border: 2px solid hsl(var(--snes-grey));
-  position: relative;
-}
-
-.fader-thumb {
-  background: hsl(var(--snes-grey-light));
-  border: 2px solid hsl(var(--snes-grey-dark));
-  width: 1.5rem;
-  height: 0.75rem;
-  cursor: grab;
-}
-
-.fader-thumb:active {
-  cursor: grabbing;
-}
-
-.fader-thumb:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px hsl(var(--gb-green));
-}
-
-/* Step sequencer grid */
-.seq-grid {
-  display: grid;
-  gap: 0.25rem;
-  grid-template-columns: repeat(16, 1fr);
-}
-
-.seq-step {
-  aspect-ratio: 1;
-  background: hsl(var(--snes-grey-darker));
-  border: 2px solid hsl(var(--snes-grey));
-  font-family: 'VT323', 'Press Start 2P', monospace;
-  font-size: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 75ms ease;
-  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.05);
-}
-
-.seq-step.active {
-  background: hsl(var(--gb-green));
-  border-color: hsl(var(--gb-green-dark));
-  color: hsl(var(--indigo));
-  box-shadow: 
-    inset -1px -1px 0 rgba(0,0,0,0.3),
-    inset 1px 1px 0 rgba(255,255,255,0.1);
-}
-
-.seq-step.playing {
-  background: hsl(var(--cyan));
-  border-color: hsl(var(--cyan) / 0.8);
-  color: hsl(var(--indigo));
-  animation: pulse 1s ease-in-out infinite;
-}
-
-.seq-step.empty:hover {
-  background: hsl(var(--snes-grey-dark));
-  border-color: hsl(var(--snes-grey));
-}
-
-/* Waveform display */
-.waveform-canvas {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-/* Tab styles */
-.tab-btn {
-  padding: 0.375rem 0.75rem;
-  font-family: 'VT323', 'Press Start 2P', monospace;
-  font-size: 0.75rem;
-  border: 2px solid hsl(var(--snes-grey));
-  transition: all 75ms ease;
-  background: hsl(var(--snes-grey-darker));
-  border-color: hsl(var(--snes-grey));
-  color: hsl(var(--snes-grey));
-}
-
-.tab-btn.active {
-  background: hsl(var(--gb-green));
-  border-color: hsl(var(--gb-green-dark));
-  color: hsl(var(--indigo));
-  box-shadow: 
-    inset -1px -1px 0 rgba(0,0,0,0.3),
-    inset 1px 1px 0 rgba(255,255,255,0.1);
-}
-
-.tab-btn:hover:not(.active) {
-  background: hsl(var(--snes-grey-dark));
-  border-color: hsl(var(--snes-grey));
-  color: hsl(var(--gb-green-light));
-}
-
-/* Knob styles */
-.knob {
-  width: 4rem;
-  height: 4rem;
-  border-radius: 9999px;
-  background: hsl(var(--snes-grey-dark));
-  border: 2px solid hsl(var(--snes-grey));
-  position: relative;
-  cursor: grab;
-}
-
-.knob:active {
-  cursor: grabbing;
-}
-
-.knob::before {
-  content: '';
-  position: absolute;
-  top: 0.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0.125rem;
-  height: 0.25rem;
-  background: hsl(var(--gb-green));
-  border-radius: 0.125rem;
-}
-
-/* Chip cartridge */
-.chip-cartridge {
-  background: hsl(var(--snes-grey-dark));
-  border: 2px solid hsl(var(--snes-grey));
-  padding: 0.75rem;
-  position: relative;
-}
-
-.chip-cartridge::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 1.5rem;
-  height: 0.25rem;
-  background: hsl(var(--snes-grey));
-  border-radius: 0.25rem 0.25rem 0 0;
-}
-
-.chip-pins {
-  display: flex;
-  gap: 0.125rem;
-  margin-top: 0.5rem;
-}
-
-.chip-pin {
-  width: 0.25rem;
-  height: 1rem;
-  border-radius: 0.125rem;
-  background: linear-gradient(180deg, hsl(var(--gb-green)) 0%, hsl(var(--gb-green-dark)) 100%);
-  box-shadow: 0 1px 0 rgba(255,255,255,0.1);
-}
-
-/* Animation keyframes */
-@keyframes scanline {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100vh); }
-}
-
-@keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-.animate-scanline {
-  animation: scanline 8s linear infinite;
-}
-
-.animate-blink {
-  animation: blink 1s step-end infinite;
-}
-
-.animate-pulse {
-  animation: pulse 1s ease-in-out infinite;
-}
-
-/* Mobile-first responsive */
+/* Matching hardware treatment for the existing sound, sample and project tools. */
+.panel, .panel-raised { background: #eaeadd; border: 1px solid #b6bba8; border-radius: 12px; box-shadow: inset 1px 2px 0 #fffef3, 0 3px 0 #b1baa1; }
+.panel-recessed { background: #d4d9c5; box-shadow: inset 1px 2px 3px #8c99794d; }
+.lcd-screen { position: relative; overflow: hidden; color: #344b2a; background: var(--lcd); border: 2px solid #7f935f; border-radius: 8px; box-shadow: inset 2px 3px 0 #9caf75; }
+.btn-retro, .tab-btn { padding: .65rem 1rem; color: #414c37; font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 600; border-radius: 7px; background: #e1e5d4; border: 1px solid #b6beaa; box-shadow: inset 1px 2px 0 #faffed, 0 3px 0 #abb59a; }
+.btn-retro:hover, .tab-btn:hover { background: #eff3e3; }
+.btn-retro:active { transform: translateY(2px); }
+.btn-retro-primary, .btn-retro.primary, .tab-btn.active { background: #829664; color: #fffdeb; border-color: #62784a; box-shadow: inset 1px 2px 0 #a6ba85, 0 3px 0 #526b3b; }
+.btn-retro-accent, .btn-retro.accent { background: var(--berry); color: #fff6ed; border-color: #74304d; box-shadow: inset 1px 2px 0 #b96787, 0 3px 0 #652740; }
+.fader-track { background: #bcc6a9; border: 1px solid #9ba98a; border-radius: 5px; overflow: hidden; }
+.chip-cartridge { background: #d8dec7; border: 1px solid #b1bca0; border-radius: 10px 10px 16px 10px; padding: 1rem; box-shadow: inset 1px 2px 0 #f3f7e5, 0 3px 0 #aab69a; }
+.chip-pins { display: flex; gap: 4px; margin-top: 12px; }
+.chip-pin { width: 5px; height: 14px; background: #9ea76d; border: 1px solid #899459; border-radius: 2px; }
+.waveform-canvas { width: 100%; height: 100%; display: block; }
+.seq-grid { display: grid; gap: .25rem; grid-template-columns: repeat(16, 1fr); }
+.seq-step { width: 100%; min-width: 24px; aspect-ratio: 1; border-radius: 4px; background: #d5ddc6; border: 1px solid #aab99a; }
+.seq-step.active { background: #708753; color: #eff5d8; }
+.seq-step.playing { outline: 2px solid var(--berry); }
+.legacy-workspace { min-height: 400px; }
+.legacy-workspace .font-pixel { font-family: 'Space Grotesk', sans-serif; font-weight: 600; }
+.legacy-workspace > .space-y-4 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
+.legacy-workspace > .space-y-4 > * { margin-top: 0 !important; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #c7cfb2; border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: #7e8d69; border-radius: 4px; }
 @media (max-width: 640px) {
-  .seq-grid {
-    grid-template-columns: repeat(8, 1fr);
-  }
-  
-  .fader-track {
-    height: 200px;
-  }
+  .brand-title { font-size: 32px; }
+  .brand-icon { width: 42px; height: 46px; }
+  .console-tab { min-height: 57px; }
+  .console-shell { border-bottom-right-radius: 32px; }
+  .legacy-workspace > .space-y-4 { grid-template-columns: minmax(0, 1fr); }
+  .legacy-workspace .btn-retro { padding: .6rem .7rem; }
+  .bezel-label { letter-spacing: .09em; font-size: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
 }
