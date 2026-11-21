@@ -6,20 +6,22 @@ import { PixelArt } from "./PixelArt";
 import { PianoRoll } from "./PianoRoll";
 import { BlockEditor } from "./BlockEditor";
 import { patternLabel, type Note, type SongBlock, type Track } from "@/lib/song";
+import { instruments, instrumentById } from "@/lib/instruments";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  track: Track; block: SongBlock | null; patternIndex: number; bar: number; position: number; playing: boolean;
+  track: Track; block: SongBlock | null; patternIndex: number; bar: number; barCount: number; position: number; playing: boolean;
   onNotes: (notes: Note[]) => void; onAssign: (index: number) => void; onCopy: (index: number) => void;
   onTrack: (patch: Partial<Track>, group?: string) => void;
   onBlock: (block: SongBlock, group?: string) => void;
   onDuplicate: (bar: number) => void; onRemove: () => void; onFinish: () => void; onPreview: (midi: number) => void;
 };
 
-export function PatternEditor({ track, block, patternIndex, bar, position, playing, onNotes, onAssign, onCopy, onTrack, onBlock, onDuplicate, onRemove, onFinish, onPreview }: Props) {
+export function PatternEditor({ track, block, patternIndex, bar, barCount, position, playing, onNotes, onAssign, onCopy, onTrack, onBlock, onDuplicate, onRemove, onFinish, onPreview }: Props) {
   const [mode, setMode] = useState<"steps" | "piano">(track.voice === "kick" || track.voice === "noise" ? "steps" : "piano");
   const notes = track.patterns[patternIndex];
-  const cursor = playing && Math.floor(position / 16) === bar && block && position % 16 < block.length ? block.start + position % 16 * (block.end - block.start) / block.length : -1;
+  const local = position - bar * 16;
+  const cursor = playing && block && local >= 0 && local < block.length ? block.start + local * (block.end - block.start) / block.length : -1;
   const copySource = patternIndex === 0 ? 1 : 0;
   return (
     <section className="editor-panel rounded-xl p-3 sm:p-5" aria-labelledby="pattern-heading">
@@ -29,8 +31,8 @@ export function PatternEditor({ track, block, patternIndex, bar, position, playi
       </div>
       <div className="grid gap-5 lg:grid-cols-[220px_1fr]">
         <aside className="space-y-3">
-          <div className="sound-card flex items-center gap-3 rounded-lg p-3"><div className="sound-icon"><PixelArt type="note" className="h-8 w-8" /></div><div><span className="case-label text-[8px]">ACTIVE SOUND</span><p className="mt-1 text-xs font-bold">{track.name}</p><p className="mt-1 text-[9px] text-[var(--case-muted)]">{track.chip} / 8-BIT</p></div></div>
-          <BlockEditor block={block} bar={bar} onChange={onBlock} onFinish={onFinish} onDuplicate={onDuplicate} onRemove={onRemove} />
+          <div className="sound-card rounded-lg p-3"><div className="mb-3 flex items-center gap-3"><div className="sound-icon"><PixelArt type="note" className="h-8 w-8" /></div><div><span className="case-label text-[8px]">ACTIVE SOUND</span><p className="mt-1 text-xs font-bold">{track.name}</p><p className="mt-1 text-[9px] text-[var(--case-muted)]">{track.chip}</p></div></div>{track.voice !== "sample" && <select aria-label="Channel instrument preset" value={track.preset} onChange={e => { const p = instrumentById(e.target.value); onTrack({ preset: p.id, voice: p.voice, name: p.name, chip: p.category.toUpperCase() }); }} className="mb-3 w-full rounded border bg-[var(--case-light)] p-2 text-[10px]">{[...new Set(instruments.map(p => p.category))].map(category => <optgroup key={category} label={category}>{instruments.filter(p => p.category === category).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</optgroup>)}</select>}<label className="flex items-center justify-between text-[9px] font-bold">CHANNEL OCTAVE<select aria-label="Channel octave" value={track.octave} onChange={e => onTrack({ octave: Number(e.target.value) })} className="rounded border bg-[var(--case-light)] p-1">{[-3, -2, -1, 0, 1, 2, 3].map(v => <option key={v} value={v}>{v > 0 ? "+" : ""}{v}</option>)}</select></label></div>
+          <BlockEditor block={block} bar={bar} barCount={barCount} onChange={onBlock} onFinish={onFinish} onDuplicate={onDuplicate} onRemove={onRemove} />
         </aside>
         <div className="min-w-0">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">

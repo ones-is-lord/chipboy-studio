@@ -2,19 +2,20 @@ import { useState } from "react";
 import { Grid2X2, Waves, Mic, FolderOpen } from "lucide-react";
 import { SampleRecorder } from "./SampleRecorder";
 import { ProjectManager } from "./ProjectManager";
-import { ChiptuneMode } from "./ChiptuneMode";
+import { InstrumentBrowser } from "./InstrumentBrowser";
+import { StudioProvider } from "./StudioProvider";
 import { MusicGenerator } from "./MusicGenerator";
 import { PixelArt } from "./PixelArt";
 import { cn } from "@/lib/utils";
 
 const modes = [
   { id: "song", label: "Song maker", icon: Grid2X2 },
-  { id: "sounds", label: "Sound chips", icon: Waves },
-  { id: "samples", label: "Samples", icon: Mic },
+  { id: "sounds", label: "Instruments", icon: Waves },
+  { id: "samples", label: "Sampler", icon: Mic },
   { id: "projects", label: "Projects", icon: FolderOpen },
 ] as const;
 
-export const WorkspaceLayout = () => {
+const StudioWorkspace = () => {
   const [mode, setMode] = useState<(typeof modes)[number]["id"]>("song");
 
   return (
@@ -48,8 +49,8 @@ export const WorkspaceLayout = () => {
           </nav>
 
           <div hidden={mode !== "song"}><MusicGenerator active={mode === "song"} /></div>
-          <div hidden={mode !== "sounds"} className="legacy-workspace"><div className="section-heading mb-4"><span>02 / SOUND CHIPS</span><span className="text-xs">Choose your 8-bit voice</span></div><ChiptuneMode /></div>
-          <div hidden={mode !== "samples"} className="legacy-workspace"><div className="section-heading mb-4"><span>03 / SAMPLE LAB</span><span className="text-xs">Capture something new</span></div><SampleRecorder /></div>
+          <div hidden={mode !== "sounds"}><InstrumentBrowser active={mode === "sounds"} onOpenSong={() => setMode("song")} /></div>
+          <div hidden={mode !== "samples"}><SampleRecorder active={mode === "samples"} onOpenSong={() => setMode("song")} /></div>
           <div hidden={mode !== "projects"} className="legacy-workspace"><ProjectManager /></div>
 
           <footer className="mt-6 flex items-center justify-between gap-4 px-2 pb-2">
@@ -62,3 +63,5 @@ export const WorkspaceLayout = () => {
     </div>
   );
 };
+
+export const WorkspaceLayout = () => <StudioProvider><StudioWorkspace /></StudioProvider>;

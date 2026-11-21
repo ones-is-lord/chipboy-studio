@@ -1,93 +1,81 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { blockNotes, type Note, type Song, type Track } from "@/lib/song";
+import { blockNotes, stepSeconds, type SampleAsset, type Song, type Track } from "@/lib/song";
+import { prepareSample, scheduleVoice, songEvents, type Voice, type SampleCache } from "@/lib/audio-engine";
 
-function sound(ctx: AudioContext, track: Track, note: Note, master: number, seconds: number) {
-  const now = ctx.currentTime;
-  const duration = track.voice === "noise" ? Math.min(seconds, 0.09) : track.voice === "kick" ? Math.min(seconds, 0.2) : Math.max(0.04, seconds);
-  const gain = ctx.createGain();
-  const level = Math.max(0.0001, track.volume / 100 * master / 100 * 0.12);
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.linearRampToValueAtTime(level, now + 0.004);
-  gain.gain.setValueAtTime(level, now + Math.max(0.005, duration - 0.025));
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-  gain.connect(ctx.destination);
-  let source: AudioScheduledSourceNode;
-  let filter: BiquadFilterNode | undefined;
-  if (track.voice === "noise") {
-    const buffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * duration), ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
-    const noise = ctx.createBufferSource();
-    noise.buffer = buffer;
-    filter = ctx.createBiquadFilter();
-    filter.type = "highpass";
-    filter.frequency.value = Math.min(ctx.sampleRate / 2 - 1, 7000 * 2 ** ((note.midi - track.rootMidi + track.pitch) / 12));
-    noise.connect(filter); filter.connect(gain); source = noise;
-  } else {
-    const oscillator = ctx.createOscillator();
-    oscillator.type = track.voice === "kick" ? "sine" : track.voice;
-    const frequency = track.voice === "kick" ? 120 * 2 ** ((note.midi - track.rootMidi + track.pitch) / 12) : 440 * 2 ** ((note.midi - 69 + track.pitch) / 12);
-    oscillator.frequency.setValueAtTime(frequency, now);
-    if (track.voice === "kick") oscillator.frequency.exponentialRampToValueAtTime(35, now + duration);
-    oscillator.connect(gain); source = oscillator;
-  }
-  source.start(now); source.stop(now + duration + 0.01);
-  return { source, disconnect: () => { source.disconnect(); gain.disconnect(); filter?.disconnect(); } };
-}
-
-export function useSongPlayback(song: Song, active: boolean) {
+export function useSongPlayback(song: Song, active: boolean, samples: SampleAsset[]) {
   const [playing, setPlaying] = useState(false);
+  const [preparing, setPreparing] = useState(false);
   const [loop, setLoop] = useState(true);
   const [position, setPosition] = useState(-1);
   const context = useRef<AudioContext | null>(null);
   const next = useRef(0);
-  const current = useRef({ song, loop });
-  current.current = { song, loop };
-  const voices = useRef(new Set<AudioScheduledSourceNode>());
-  const silence = useCallback(() => { voices.current.forEach(source => source.stop()); voices.current.clear(); }, []);
-  const playNote = useCallback((track: Track, note: Note, master: number, duration: number) => {
-    if (!context.current) return;
-    const voice = sound(context.current, track, note, master, duration);
-    voices.current.add(voice.source);
-    voice.source.onended = () => { voices.current.delete(voice.source); voice.disconnect(); };
-  }, []);
+  const current = useRef({ song, loop, samples }); current.current = { song, loop, samples };
+  const voices = useRef<Voice[]>([]);
+  const cache = useRef<SampleCache>(new Map());
+  const activation = useRef(0);
+  const activeState = useRef(active); activeState.current = active;
+  const silence = useCallback(() => { activation.current++; voices.current.forEach(v => v.stop()); voices.current = []; }, []);
   useEffect(() => { if (!active) { setPlaying(false); silence(); } }, [active, silence]);
-  useEffect(() => () => { silence(); void context.current?.close(); }, [silence]);
+  useEffect(() => () => { silence(); cache.current.clear(); void context.current?.close(); }, [silence]);
   useEffect(() => {
-    if (!playing) return;
-    const tick = () => {
-      if (next.current === 128) {
-        next.current = 0;
-        if (!current.current.loop) { setPlaying(false); return; }
+    if (!playing || !context.current) return;
+    const ctx = context.current;
+    let time = ctx.currentTime + 0.03;
+    const positions: { time: number; position: number }[] = [];
+    let finishing = false;
+    const schedule = () => {
+      voices.current = voices.current.filter(v => !v.isEnded());
+      while (!finishing && time < ctx.currentTime + 0.1) {
+        const { song, samples, loop } = current.current;
+        if (next.current >= song.barCount * 16) {
+          next.current = 0;
+          if (!loop) { finishing = true; break; }
+        }
+        const pos = next.current++;
+        const unit = stepSeconds(song);
+        song.tracks.forEach(track => {
+          if (track.muted) return;
+          track.bars.forEach((block, bar) => {
+            if (!block || pos < bar * 16 || pos >= bar * 16 + block.length) return;
+            blockNotes(track, block).filter(n => n.start + bar * 16 === pos).forEach(note => voices.current.push(scheduleVoice(ctx, track, note, song.master, time, note.duration * unit, samples, block, cache.current)));
+          });
+        });
+        positions.push({ time, position: pos }); time += unit;
       }
-      const pos = next.current++;
-      setPosition(pos);
-      const song = current.current.song;
-      const bar = Math.floor(pos / 16);
-      const step = pos % 16;
-      song.tracks.forEach(track => {
-        const block = track.bars[bar];
-        if (!block || track.muted) return;
-        blockNotes(track, block).filter(n => n.start === step).forEach(note => playNote(track, note, song.master, note.duration * 60 / song.bpm / 4));
-      });
+      let heard: number | undefined;
+      while (positions.length && positions[0].time <= ctx.currentTime) heard = positions.shift()!.position;
+      if (heard !== undefined) setPosition(heard);
+      if (finishing && ctx.currentTime >= time + 0.2) setPlaying(false);
     };
-    tick();
-    const timer = window.setInterval(tick, 60000 / song.bpm / 4);
+    const tick = () => { try { schedule(); } catch (error) { finishing = true; silence(); setPlaying(false); toast.error(error instanceof Error ? error.message : "Playback failed. Try a shorter sample."); } };
+    tick(); const timer = window.setInterval(tick, 25);
     return () => { window.clearInterval(timer); silence(); };
-  }, [playing, song.bpm, playNote, silence]);
+  }, [playing, song.bpm, song.speed, silence]);
   const toggle = async () => {
     if (playing) { setPlaying(false); silence(); return; }
-    try { context.current ??= new AudioContext(); await context.current.resume(); setPlaying(true); }
-    catch { toast.error("Audio could not start. Please try again in your browser."); }
-  };
-  const stop = () => { setPlaying(false); silence(); next.current = 0; setPosition(-1); };
-  const rewind = () => { silence(); next.current = 0; setPosition(-1); };
-  const preview = async (track: Track, midi: number) => {
+    const ticket = ++activation.current;
+    setPreparing(true);
     try {
       context.current ??= new AudioContext(); await context.current.resume();
-      playNote(track, { id: "preview", midi, start: 0, duration: 1 }, current.current.song.master, 0.15);
+      await new Promise<void>(resolve => window.requestAnimationFrame(() => resolve()));
+      if (ticket !== activation.current || !activeState.current) return;
+      for (const event of songEvents(current.current.song)) if (event.track.voice === "sample") prepareSample(event.track, event.note, event.duration, current.current.samples, event.block, cache.current);
+      if (ticket === activation.current && activeState.current) setPlaying(true);
+    } catch { toast.error("Audio could not start. Try a shorter sample or song."); }
+    finally { setPreparing(false); }
+  };
+  const stop = () => { setPlaying(false); silence(); next.current = 0; setPosition(-1); };
+  const rewind = () => { setPlaying(false); silence(); next.current = 0; setPosition(-1); };
+  const preview = async (track: Track, midi: number) => {
+    try {
+      const ticket = activation.current;
+      context.current ??= new AudioContext(); await context.current.resume();
+      if (ticket !== activation.current || !activeState.current) return;
+      voices.current = voices.current.filter(v => !v.isEnded());
+      const duration = track.voice === "sample" ? Math.min(2, current.current.samples.find(a => a.id === track.sampleId)?.buffer.duration ?? 0.2) : 0.25;
+      voices.current.push(scheduleVoice(context.current, track, { id: "preview", midi, start: 0, duration: 1 }, current.current.song.master, context.current.currentTime + 0.01, duration, current.current.samples, undefined, cache.current));
     } catch { toast.error("Audio preview could not start."); }
   };
-  return { playing, loop, setLoop, position, toggle, stop, rewind, preview };
+  return { playing, preparing, loop, setLoop, position, toggle, stop, rewind, preview };
 }
