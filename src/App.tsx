@@ -1,27 +1,21 @@
-import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const path = typeof window === "undefined" ? "/" : window.location.pathname;
+const route = (base && path.startsWith(base) ? path.slice(base.length) : path) || "/";
+const isHome = route === "/" || route === "";
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
+  <ErrorBoundary>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <Sonner position="bottom-right" closeButton />
+      {isHome ? <Index /> : <NotFound />}
     </TooltipProvider>
-  </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

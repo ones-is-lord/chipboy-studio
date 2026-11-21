@@ -7,6 +7,7 @@ import { PianoRoll } from "./PianoRoll";
 import { BlockEditor } from "./BlockEditor";
 import { patternLabel, type Note, type SongBlock, type Track } from "@/lib/song";
 import { instruments, instrumentById } from "@/lib/instruments";
+import { defaultEffects, type Effects } from "@/lib/effects";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -23,6 +24,8 @@ export function PatternEditor({ track, block, patternIndex, bar, barCount, posit
   const local = position - bar * 16;
   const cursor = playing && block && local >= 0 && local < block.length ? block.start + local * (block.end - block.start) / block.length : -1;
   const copySource = patternIndex === 0 ? 1 : 0;
+  const effects = track.effects ?? defaultEffects();
+  const setEffects = (patch: Partial<Effects>, group: string) => onTrack({ effects: { ...defaultEffects(), ...track.effects, ...patch } }, group);
   return (
     <section className="editor-panel rounded-xl p-3 sm:p-5" aria-labelledby="pattern-heading">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -31,7 +34,7 @@ export function PatternEditor({ track, block, patternIndex, bar, barCount, posit
       </div>
       <div className="grid gap-5 lg:grid-cols-[220px_1fr]">
         <aside className="space-y-3">
-          <div className="sound-card rounded-lg p-3"><div className="mb-3 flex items-center gap-3"><div className="sound-icon"><PixelArt type="note" className="h-8 w-8" /></div><div><span className="case-label text-[8px]">ACTIVE SOUND</span><p className="mt-1 text-xs font-bold">{track.name}</p><p className="mt-1 text-[9px] text-[var(--case-muted)]">{track.chip}</p></div></div>{track.voice !== "sample" && <select aria-label="Channel instrument preset" value={track.preset} onChange={e => { const p = instrumentById(e.target.value); onTrack({ preset: p.id, voice: p.voice, name: p.name, chip: p.category.toUpperCase() }); }} className="mb-3 w-full rounded border bg-[var(--case-light)] p-2 text-[10px]">{[...new Set(instruments.map(p => p.category))].map(category => <optgroup key={category} label={category}>{instruments.filter(p => p.category === category).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</optgroup>)}</select>}<label className="flex items-center justify-between text-[9px] font-bold">CHANNEL OCTAVE<select aria-label="Channel octave" value={track.octave} onChange={e => onTrack({ octave: Number(e.target.value) })} className="rounded border bg-[var(--case-light)] p-1">{[-3, -2, -1, 0, 1, 2, 3].map(v => <option key={v} value={v}>{v > 0 ? "+" : ""}{v}</option>)}</select></label></div>
+          <div className="sound-card rounded-lg p-3"><div className="mb-3 flex items-center gap-3"><div className="sound-icon"><PixelArt type="note" className="h-8 w-8" /></div><div><span className="case-label text-[8px]">ACTIVE SOUND</span><p className="mt-1 font-pixel text-sm">{track.name}</p><p className="mt-1 text-[9px] text-[var(--case-muted)]">{track.chip}</p></div></div>{track.voice !== "sample" && <select aria-label="Channel instrument preset" value={track.preset} onChange={e => { const p = instrumentById(e.target.value); onTrack({ preset: p.id, voice: p.voice, name: p.name, chip: p.category.toUpperCase() }); }} className="mb-3 w-full rounded border bg-[var(--case-light)] p-2 text-[10px]">{[...new Set(instruments.map(p => p.category))].map(category => <optgroup key={category} label={category}>{instruments.filter(p => p.category === category).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</optgroup>)}</select>}<label className="flex items-center justify-between text-[9px] font-bold">CHANNEL OCTAVE<select aria-label="Channel octave" value={track.octave} onChange={e => onTrack({ octave: Number(e.target.value) })} className="rounded border bg-[var(--case-light)] p-1">{[-3, -2, -1, 0, 1, 2, 3].map(v => <option key={v} value={v}>{v > 0 ? "+" : ""}{v}</option>)}</select></label></div>
           <BlockEditor block={block} bar={bar} barCount={barCount} onChange={onBlock} onFinish={onFinish} onDuplicate={onDuplicate} onRemove={onRemove} />
         </aside>
         <div className="min-w-0">
@@ -49,6 +52,14 @@ export function PatternEditor({ track, block, patternIndex, bar, barCount, posit
           <div className="mt-5 grid grid-cols-2 gap-6">
             <div><div className="mb-3 flex justify-between text-[9px] font-bold tracking-wider"><span>VOLUME</span><span>{track.volume}%</span></div><Slider aria-label="Selected track volume" className="console-slider" value={[track.volume]} onValueChange={([v]) => onTrack({ volume: v }, "track-volume")} onValueCommit={onFinish} max={100} /></div>
             <div><div className="mb-3 flex justify-between text-[9px] font-bold tracking-wider"><span>PITCH</span><span>{track.pitch > 0 ? "+" : ""}{track.pitch} ST</span></div><Slider aria-label="Selected track pitch" className="console-slider" value={[track.pitch]} onValueChange={([v]) => onTrack({ pitch: v }, "track-pitch")} onValueCommit={onFinish} min={-12} max={12} /></div>
+          </div>
+          <div className="mt-5 grid grid-cols-2 gap-6">
+            <div><div className="mb-3 flex justify-between text-[9px] font-bold tracking-wider"><span>PAN</span><span>{track.pan === 0 || track.pan === undefined ? "CENTER" : `${Math.abs(track.pan)}% ${track.pan < 0 ? "L" : "R"}`}</span></div><Slider aria-label="Selected track pan" className="console-slider" value={[track.pan ?? 0]} onValueChange={([v]) => onTrack({ pan: v }, "track-pan")} onValueCommit={onFinish} min={-100} max={100} /></div>
+            <div><div className="mb-3 flex justify-between text-[9px] font-bold tracking-wider"><span>REVERB SEND</span><span>{Math.round((effects.reverb ?? 0) * 100)}%</span></div><Slider aria-label="Selected track reverb send" className="console-slider" value={[Math.round((effects.reverb ?? 0) * 100)]} onValueChange={([v]) => setEffects({ reverb: v / 100 }, "track-reverb")} onValueCommit={onFinish} max={100} /></div>
+          </div>
+          <div className="mt-5 grid grid-cols-2 gap-6">
+            <div><div className="mb-3 flex justify-between text-[9px] font-bold tracking-wider"><span>DELAY SEND</span><span>{Math.round((effects.delay ?? 0) * 100)}%</span></div><Slider aria-label="Selected track delay send" className="console-slider" value={[Math.round((effects.delay ?? 0) * 100)]} onValueChange={([v]) => setEffects({ delay: v / 100 }, "track-delay")} onValueCommit={onFinish} max={100} /></div>
+            <div className="flex items-end justify-between gap-3"><div><span className="mb-3 block text-[9px] font-bold tracking-wider">CHANNEL FX</span><span className="text-[9px] text-[var(--case-muted)]">Applies on the next play</span></div><button onClick={() => setEffects({ enabled: !effects.enabled }, "track-fx")} aria-pressed={effects.enabled} className={cn("console-tab rounded-md px-3 py-2 text-[9px] font-bold uppercase", effects.enabled && "selected")}>{effects.enabled ? "FX ON" : "FX OFF"}</button></div>
           </div>
           <p className="mt-5 text-[9px] leading-relaxed text-[var(--case-muted)]">Pattern notes are shared by matching blocks. Duplicate a block to edit its copy independently. All musical edits support Undo/Redo.</p>
         </div>

@@ -5,13 +5,19 @@ export type Track = {
   name: string; chip: string; voice: "square" | "triangle" | "kick" | "noise" | "sample";
   preset: string; octave: number; sampleId?: string; effects?: Effects;
   rootMidi: number; patterns: Note[][]; bars: (SongBlock | null)[]; muted: boolean; volume: number; pitch: number;
+  pan?: number; solo?: boolean;
 };
-export type Song = { name: string; bpm: number; speed: number; barCount: number; master: number; tracks: Track[]; loop?: { enabled: boolean; startBar: number; endBar: number } };
+export type Song = { name: string; bpm: number; speed: number; barCount: number; master: number; transpose?: number; tracks: Track[]; loop?: { enabled: boolean; startBar: number; endBar: number } };
 export type SampleAsset = { id: string; name: string; buffer: AudioBuffer; revision: number; rootMidi: number; loop: boolean; loopStart?: number; loopEnd?: number };
 export const stepSeconds = (song: Song) => 60 / song.bpm / 4 / song.speed;
 export const patternLabel = (index: number) => index < 26 ? String.fromCharCode(65 + index) : `P${index + 1}`;
 export const newBlock = (pattern: number): SongBlock => ({ pattern, start: 0, end: 16, length: 16 });
 export const noteName = (midi: number) => `${["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"][midi % 12]}${Math.floor(midi / 12) - 1}`;
+export const transposeNote = (note: Note, semitones = 0): Note => semitones ? { ...note, midi: Math.max(0, Math.min(127, note.midi + semitones)) } : note;
+export function audibleTracks(song: Song) {
+  const soloed = song.tracks.some(track => track.solo);
+  return song.tracks.flatMap((track, index) => !track.muted && (!soloed || track.solo) ? [{ track, index }] : []);
+}
 
 export function coveringBlock(track: Track, bar: number) {
   for (let i = bar; i >= 0; i--) {

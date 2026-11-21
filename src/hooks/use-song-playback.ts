@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { blockNotes, stepSeconds, type SampleAsset, type Song, type Track } from "@/lib/song";
+import { audibleTracks, blockNotes, stepSeconds, transposeNote, type Note, type SampleAsset, type Song, type Track } from "@/lib/song";
 import { prepareSample, scheduleVoice, songEvents, type Voice, type SampleCache } from "@/lib/audio-engine";
+import { createEffectsBus, effectTail } from "@/lib/effects";
+
+type Bus = ReturnType<typeof createEffectsBus>;
 
 export function useSongPlayback(song: Song, active: boolean, samples: SampleAsset[]) {
   const [playing, setPlaying] = useState(false);
@@ -12,12 +15,34 @@ export function useSongPlayback(song: Song, active: boolean, samples: SampleAsse
   const next = useRef(0);
   const current = useRef({ song, loop, samples }); current.current = { song, loop, samples };
   const voices = useRef<Voice[]>([]);
+  const buses = useRef<Bus[]>([]);
   const cache = useRef<SampleCache>(new Map());
   const activation = useRef(0);
   const activeState = useRef(active); activeState.current = active;
-  const silence = useCallback(() => { activation.current++; voices.current.forEach(v => v.stop()); voices.current = []; }, []);
+
+  const silence = useCallback(() => {
+    activation.current++;
+    voices.current.forEach(v => v.stop());
+    voices.current = [];
+    buses.current.forEach(bus => bus.dispose());
+    buses.current = [];
+  }, []);
+
+  const ensureContext = useCallback(async () => {
+    if (typeof AudioContext === "undefined") throw new Error("This browser does not support Web Audio playback.");
+    if (!context.current || context.current.state === "closed") context.current = new AudioContext();
+    await context.current.resume();
+    return context.current;
+  }, []);
+
+  const buildBuses = useCallback((ctx: AudioContext, source: Song) => {
+    buses.current.forEach(bus => bus.dispose());
+    buses.current = source.tracks.map(track => createEffectsBus(ctx, track.effects, source.bpm, source.speed));
+  }, []);
+
   useEffect(() => { if (!active) { setPlaying(false); silence(); } }, [active, silence]);
-  useEffect(() => () => { silence(); cache.current.clear(); void context.current?.close(); }, [silence]);
+  useEffect(() => () => { silence(); cache.current.clear(); void context.current?.close().catch(() => {}); }, [silence]);
+
   useEffect(() => {
     if (!playing || !context.current) return;
     const ctx = context.current;
@@ -34,11 +59,13 @@ export function useSongPlayback(song: Song, active: boolean, samples: SampleAsse
         }
         const pos = next.current++;
         const unit = stepSeconds(song);
-        song.tracks.forEach(track => {
-          if (track.muted) return;
+        const transpose = song.transpose ?? 0;
+        audibleTracks(song).forEach(({ track, index }) => {
           track.bars.forEach((block, bar) => {
             if (!block || pos < bar * 16 || pos >= bar * 16 + block.length) return;
-            blockNotes(track, block).filter(n => n.start + bar * 16 === pos).forEach(note => voices.current.push(scheduleVoice(ctx, track, note, song.master, time, note.duration * unit, samples, block, cache.current)));
+            blockNotes(track, block).filter(n => n.start + bar * 16 === pos).forEach(note => {
+              voices.current.push(scheduleVoice(ctx, track, transposeNote(note, transpose), song.master, time, note.duration * unit, samples, block, cache.current, buses.current[index]?.input));
+            });
           });
         });
         positions.push({ time, position: pos }); time += unit;
@@ -48,34 +75,64 @@ export function useSongPlayback(song: Song, active: boolean, samples: SampleAsse
       if (heard !== undefined) setPosition(heard);
       if (finishing && ctx.currentTime >= time + 0.2) setPlaying(false);
     };
-    const tick = () => { try { schedule(); } catch (error) { finishing = true; silence(); setPlaying(false); toast.error(error instanceof Error ? error.message : "Playback failed. Try a shorter sample."); } };
+    const tick = () => {
+      try { schedule(); }
+      catch (error) { finishing = true; silence(); setPlaying(false); toast.error(error instanceof Error ? error.message : "Playback failed. Try a shorter sample."); }
+    };
     tick(); const timer = window.setInterval(tick, 25);
     return () => { window.clearInterval(timer); silence(); };
   }, [playing, song.bpm, song.speed, silence]);
+
   const toggle = async () => {
     if (playing) { setPlaying(false); silence(); return; }
     const ticket = ++activation.current;
     setPreparing(true);
     try {
-      context.current ??= new AudioContext(); await context.current.resume();
+      const ctx = await ensureContext();
       await new Promise<void>(resolve => window.requestAnimationFrame(() => resolve()));
       if (ticket !== activation.current || !activeState.current) return;
-      for (const event of songEvents(current.current.song)) if (event.track.voice === "sample") prepareSample(event.track, event.note, event.duration, current.current.samples, event.block, cache.current);
-      if (ticket === activation.current && activeState.current) setPlaying(true);
+      const source = current.current.song;
+      for (const event of songEvents(source)) if (event.track.voice === "sample") prepareSample(event.track, event.note, event.duration, current.current.samples, event.block, cache.current);
+      if (ticket === activation.current && activeState.current) { buildBuses(ctx, source); setPlaying(true); }
     } catch { toast.error("Audio could not start. Try a shorter sample or song."); }
     finally { setPreparing(false); }
   };
+
   const stop = () => { setPlaying(false); silence(); next.current = 0; setPosition(-1); };
   const rewind = () => { setPlaying(false); silence(); next.current = 0; setPosition(-1); };
+
   const preview = async (track: Track, midi: number) => {
     try {
       const ticket = activation.current;
-      context.current ??= new AudioContext(); await context.current.resume();
+      const ctx = await ensureContext();
       if (ticket !== activation.current || !activeState.current) return;
       voices.current = voices.current.filter(v => !v.isEnded());
+      const source = current.current.song;
+      const bus = createEffectsBus(ctx, track.effects, source.bpm, source.speed);
       const duration = track.voice === "sample" ? Math.min(2, current.current.samples.find(a => a.id === track.sampleId)?.buffer.duration ?? 0.2) : 0.25;
-      voices.current.push(scheduleVoice(context.current, track, { id: "preview", midi, start: 0, duration: 1 }, current.current.song.master, context.current.currentTime + 0.01, duration, current.current.samples, undefined, cache.current));
+      voices.current.push(scheduleVoice(ctx, track, { id: "preview", midi, start: 0, duration: 1 }, source.master, ctx.currentTime + 0.01, duration, current.current.samples, undefined, cache.current, bus.input));
+      window.setTimeout(() => bus.dispose(), (duration + effectTail(track.effects, source.bpm, source.speed) + 0.5) * 1000);
     } catch { toast.error("Audio preview could not start."); }
   };
-  return { playing, preparing, loop, setLoop, position, toggle, stop, rewind, preview };
+
+  const previewSequence = async (track: Track, notes: Note[]) => {
+    if (!notes.length) return;
+    try {
+      const ticket = activation.current;
+      const ctx = await ensureContext();
+      if (ticket !== activation.current || !activeState.current) return;
+      const source = current.current.song;
+      const unit = stepSeconds(source);
+      const bus = createEffectsBus(ctx, track.effects, source.bpm, source.speed);
+      const start = ctx.currentTime + 0.05;
+      voices.current = voices.current.filter(v => !v.isEnded());
+      for (const note of notes) {
+        voices.current.push(scheduleVoice(ctx, track, note, source.master, start + note.start * unit, note.duration * unit, current.current.samples, undefined, cache.current, bus.input));
+      }
+      const end = Math.max(...notes.map(note => note.start * unit + note.duration * unit)) + effectTail(track.effects, source.bpm, source.speed);
+      window.setTimeout(() => bus.dispose(), (end + 0.5) * 1000);
+    } catch { toast.error("Riff preview could not start."); }
+  };
+
+  return { playing, preparing, loop, setLoop, position, toggle, stop, rewind, preview, previewSequence };
 }
