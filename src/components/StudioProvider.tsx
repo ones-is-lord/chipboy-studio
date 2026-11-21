@@ -1,7 +1,9 @@
-import { createContext, useContext, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { useEditHistory } from "@/hooks/use-edit-history";
-import { createDemoSong, newBlock, stepSeconds, type SampleAsset } from "@/lib/song";
+import { coveringBlock, createDemoSong, newBlock, stepSeconds, type SampleAsset, type Song } from "@/lib/song";
 import { instrumentTrack, instrumentById } from "@/lib/instruments";
+import { fitRiffToTrack, type Riff } from "@/lib/riffs";
+import { readSharedSong, saveAutosave } from "@/lib/project";
 import { toast } from "sonner";
 
 function useStudioState() {
@@ -12,8 +14,38 @@ function useStudioState() {
   const [sampleHistory, setSampleHistory] = useState<{ past: SampleAsset[][]; present: SampleAsset[]; future: SampleAsset[][] }>({ past: [], present: [], future: [] });
   const archive = useRef(new Map<string, SampleAsset>());
   const revision = useRef(0);
+  const firstRender = useRef(true);
   const selectedTrack = Math.min(row, history.song.tracks.length - 1);
   const selectedBar = Math.min(bar, history.song.barCount - 1);
+
+  useEffect(() => {
+    const param = new URLSearchParams(window.location.search).get("project");
+    const shared = readSharedSong(window.location.search);
+    if (!shared) {
+      if (param) toast.error("This share link is invalid or too large. Ask for a fresh link or import the project file.");
+      return;
+    }
+    history.edit(shared);
+    setSelectedTrack(0);
+    setSelectedBar(0);
+    setPreferredPattern(0);
+    const url = new URL(window.location.href);
+    url.searchParams.delete("project");
+    window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+    toast.success(`Loaded shared project “${shared.name}”.`);
+    // The share link is consumed once, on the first mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    const timer = window.setTimeout(() => saveAutosave(history.song), 900);
+    return () => window.clearTimeout(timer);
+  }, [history.song]);
+
   const setSamples = (change: (samples: SampleAsset[]) => SampleAsset[]) => setSampleHistory(h => ({ past: [...h.past, h.present].slice(-6), present: change(h.present), future: [] }));
   const updateSample = (id: string, change: Partial<SampleAsset>) => { const nextRevision = ++revision.current; setSamples(list => list.map(a => a.id === id ? { ...a, ...change, revision: nextRevision } : a)); };
   const addSamples = (assets: SampleAsset[]) => { assets.forEach(a => archive.current.set(a.id, a)); setSamples(list => [...list, ...assets]); };
@@ -30,6 +62,12 @@ function useStudioState() {
     history.edit(s => ({ ...s, tracks: s.tracks.map((t, i) => i === selectedTrack ? { ...t, preset: id, voice: p.voice, sampleId: undefined, chip: p.category.toUpperCase(), name: p.name } : t) }));
     toast.success(`Assigned ${p.name} to the selected channel.`);
   };
+  const loadSong = (song: Song) => {
+    history.edit(song);
+    setSelectedTrack(0);
+    setSelectedBar(0);
+    setPreferredPattern(0);
+  };
   const addSampleBlock = (sample: SampleAsset, destination: number) => {
     const length = Math.max(1, Math.ceil(sample.buffer.duration / stepSeconds(history.song)));
     if (destination * 16 + length > 64 * 16) { toast.error("This sample exceeds the 64-bar timeline at the current speed. Trim it or slow the song first."); return false; }
@@ -43,11 +81,28 @@ function useStudioState() {
     toast.success(`Sample added as a ${Math.ceil(length / 16)}-bar block.`);
     return true;
   };
+  const stampRiff = (riff: Riff) => {
+    const track = history.song.tracks[selectedTrack];
+    if (!track) return;
+    const cover = coveringBlock(track, selectedBar);
+    const patternIndex = cover?.block.pattern ?? Math.min(preferredPattern, track.patterns.length - 1);
+    const notes = track.voice === "sample" ? fitRiffToTrack(riff, track) : riff.notes.map(note => ({ ...note, id: crypto.randomUUID() }));
+    const nextTrack = {
+      ...track,
+      patterns: track.patterns.map((pattern, index) => index === patternIndex ? notes : pattern),
+      bars: cover ? track.bars : track.bars.map((block, bar) => bar === selectedBar ? newBlock(patternIndex) : block),
+      ...(track.voice !== "sample" ? { preset: riff.preset, voice: riff.voice, rootMidi: riff.rootMidi, octave: 0, pitch: 0 } : {}),
+    };
+    history.edit(s => ({ ...s, tracks: s.tracks.map((item, index) => index === selectedTrack ? nextTrack : item) }));
+    setSelectedBar(cover?.bar ?? selectedBar);
+    setPreferredPattern(patternIndex);
+    toast.success(`“${riff.name}” stamped into ${track.name} pattern ${patternIndex + 1}.`);
+  };
   const audioSamples = [...archive.current.values()].map(a => sampleHistory.present.find(s => s.id === a.id) ?? a);
   return { ...history, selectedTrack, selectedBar, preferredPattern, setSelectedTrack, setSelectedBar, setPreferredPattern,
     samples: sampleHistory.present, audioSamples, addSamples, updateSample, undoSamples, redoSamples,
     canUndoSamples: sampleHistory.past.length > 0, canRedoSamples: sampleHistory.future.length > 0,
-    addInstrument, assignInstrument, addSampleBlock };
+    addInstrument, assignInstrument, addSampleBlock, loadSong, stampRiff };
 }
 type StudioState = ReturnType<typeof useStudioState>;
 const StudioContext = createContext<StudioState | null>(null);

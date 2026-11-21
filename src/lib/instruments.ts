@@ -44,3 +44,13 @@ export function instrumentTrack(id: string, barCount: number): Track {
   const p = instrumentById(id);
   return { name: p.name, chip: p.category.toUpperCase(), voice: p.voice, preset: p.id, octave: 0, rootMidi: p.category === "Bass" ? 36 : 60, pitch: 0, volume: 65, muted: false, patterns: [[], []], bars: Array(barCount).fill(null) };
 }
+
+export const categoryColors: Record<Instrument["category"], string> = {
+  Chiptune: "#658342",
+  Synths: "#933d60",
+  Bass: "#7a5c2e",
+  "Keys & bells": "#3f6f8f",
+  Drums: "#a34a2a",
+};
+export const trackCategory = (track: Track) => instrumentById(track.preset).category;
+export const trackColor = (track: Track) => categoryColors[trackCategory(track)];

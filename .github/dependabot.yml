@@ -1,0 +1,39 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "react-router-dom"
+          - "@types/react"
+          - "@types/react-dom"
+      testing:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+      tooling:
+        patterns:
+          - "vite"
+          - "@vitejs/*"
+          - "typescript"
+          - "typescript-eslint"
+          - "eslint"
+          - "eslint-plugin-*"
+          - "@eslint/*"
+          - "tailwindcss"
+          - "autoprefixer"
+          - "postcss"
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3

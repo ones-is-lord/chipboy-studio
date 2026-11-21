@@ -1,17 +1,29 @@
+import path from "node:path";
+import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
-import dyadComponentTagger from "@dyad-sh/react-vite-component-tagger";
-import react from "@vitejs/plugin-react-swc";
-import path from "path";
 
-export default defineConfig(() => ({
-  server: {
-    host: "::",
-    port: 8080,
-  },
-  plugins: [dyadComponentTagger(), react()],
+const allowedHosts = process.env.VITE_ALLOWED_HOSTS?.split(",").map(host => host.trim()).filter(Boolean);
+
+export default defineConfig({
+  base: process.env.VITE_BASE_PATH ?? "/",
+  plugins: [react()],
   resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
+    alias: { "@": path.resolve(import.meta.dirname, "./src") },
+  },
+  server: { host: "::", port: 8080, ...(allowedHosts?.length ? { allowedHosts } : {}) },
+  preview: { host: "::", port: 8080, ...(allowedHosts?.length ? { allowedHosts } : {}) },
+  build: {
+    target: "es2020",
+    chunkSizeWarningLimit: 700,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return undefined;
+          if (/node_modules[\\/](react|react-dom|scheduler)/.test(id)) return "react";
+          if (id.includes("@dnd-kit")) return "dnd";
+          return "vendor";
+        },
+      },
     },
   },
-}));
+});

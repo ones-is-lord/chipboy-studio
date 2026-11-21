@@ -3,15 +3,27 @@ export type Effects = {
   chorus: number; reverb: number; delay: number; delayBeats: number; feedback: number;
 };
 export const defaultEffects = (): Effects => ({ enabled: true, cutoff: 20000, resonance: 0.7, distortion: 0, bits: 16, chorus: 0, reverb: 0, delay: 0, delayBeats: 0.75, feedback: 0.35 });
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, Number.isFinite(value) ? value : min));
+
 export function effectTail(fx?: Effects, bpm = 120, speed = 1) {
   if (!fx?.enabled) return 0.8;
-  const repeats = fx.feedback > 0 ? Math.ceil(Math.log(0.001) / Math.log(fx.feedback)) : 1;
-  return Math.max(0.8, fx.reverb > 0 ? 2.5 : 0, fx.delay > 0 ? Math.min(20, repeats * fx.delayBeats * 60 / bpm / speed) : 0);
+  const feedback = clamp(fx.feedback, 0, 0.9);
+  const repeats = feedback > 0 ? Math.ceil(Math.log(0.001) / Math.log(feedback)) : 1;
+  return Math.max(0.8, fx.reverb > 0 ? 2.5 : 0, fx.delay > 0 ? Math.min(20, repeats * clamp(fx.delayBeats, 0.05, 4) * 60 / Math.max(40, bpm) / Math.max(0.25, speed)) : 0);
 }
 
 // Each channel owns one bus so overlapping notes share delay/reverb tails.
 export function createEffectsBus(ctx: BaseAudioContext, settings: Effects | undefined, bpm: number, speed: number) {
-  const fx = settings?.enabled ? settings : { ...defaultEffects(), enabled: false };
+  const fx = settings?.enabled ? { ...settings } : { ...defaultEffects(), enabled: false };
+  fx.cutoff = clamp(fx.cutoff, 60, 20_000);
+  fx.resonance = clamp(fx.resonance, 0.1, 24);
+  fx.distortion = clamp(fx.distortion, 0, 1);
+  fx.bits = clamp(Math.round(fx.bits), 1, 16);
+  fx.chorus = clamp(fx.chorus, 0, 1);
+  fx.reverb = clamp(fx.reverb, 0, 1);
+  fx.delay = clamp(fx.delay, 0, 1);
+  fx.delayBeats = clamp(fx.delayBeats, 0.05, 4);
+  fx.feedback = clamp(fx.feedback, 0, 0.9);
   const input = ctx.createGain();
   const nodes: AudioNode[] = [input];
   const oscillators: OscillatorNode[] = [];

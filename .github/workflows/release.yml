@@ -1,0 +1,51 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Verify and publish the release
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v5
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run the full check
+        run: pnpm check
+
+      - name: Package the static build
+        run: zip -qr "chipboy-studio-${GITHUB_REF_NAME}.zip" dist
+
+      - name: Publish the GitHub release
+        run: |
+          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            gh release upload "${GITHUB_REF_NAME}" "chipboy-studio-${GITHUB_REF_NAME}.zip" --clobber
+          else
+            gh release create "${GITHUB_REF_NAME}" "chipboy-studio-${GITHUB_REF_NAME}.zip" --title "Chipboy Studio ${GITHUB_REF_NAME}" --generate-notes
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}

@@ -1,0 +1,89 @@
+name: Bug report
+description: Something is broken or sounds wrong.
+title: "[Bug]: "
+labels: ["bug", "needs triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. For security issues, do **not** use this form. Follow [SECURITY.md](https://github.com/ones-is-lord/chipboy-studio/blob/main/SECURITY.md).
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: A clear description of the bug.
+      placeholder: Pressing Play on a 32-bar song stops after bar 8.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+      placeholder: The song should play through all 32 bars.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open the Song maker tab.
+        2. Add 8 bars twice.
+        3. Place a clip on bar 9.
+        4. Press Play.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Song maker / arrangement
+        - Pattern editor / piano roll
+        - Instruments
+        - Sampler / recording
+        - Projects / import / export
+        - Audio playback
+        - WAV export
+        - Interface / accessibility
+        - Build / deployment
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      placeholder: Chrome 142 on macOS 15.2
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Device and operating system
+      placeholder: MacBook Air M2 / Windows 11 / iPhone 15
+    validations:
+      required: false
+
+  - type: textarea
+    id: console
+    attributes:
+      label: Console errors
+      description: Paste any errors from the browser console. Remove private information first.
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?
+      description: Project files, screenshots, share links or audio examples that help reproduce the issue.
+    validations:
+      required: false

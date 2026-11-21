@@ -1,5 +1,5 @@
 import { instrumentById } from "./instruments";
-import { blockNotes, stepSeconds, type Note, type SampleAsset, type Song, type SongBlock, type Track } from "./song";
+import { audibleTracks, blockNotes, stepSeconds, transposeNote, type Note, type SampleAsset, type Song, type SongBlock, type Track } from "./song";
 import { cropBuffer, stretchBuffer } from "./sample-processing";
 import { createEffectsBus, effectTail } from "./effects";
 
@@ -7,11 +7,13 @@ export type Voice = { stop: () => void; isEnded: () => boolean };
 export type SampleCache = Map<string, AudioBuffer>;
 export function prepareSample(track: Track, note: Note, seconds: number, samples: SampleAsset[], block: SongBlock | undefined, cache: SampleCache) {
   const asset = samples.find(a => a.id === track.sampleId);
-  if (!asset) return null;
+  if (!asset || !asset.buffer || !Number.isFinite(asset.buffer.duration) || asset.buffer.duration <= 0) return null;
   const semitones = note.midi - asset.rootMidi + track.pitch + track.octave * 12;
-  const start = asset.loop ? asset.loopStart ?? 0 : block ? block.start / 16 * asset.buffer.duration : 0;
-  const end = asset.loop ? asset.loopEnd ?? asset.buffer.duration : block ? block.end / 16 * asset.buffer.duration : asset.buffer.duration;
-  const duration = Math.max(0.02, seconds);
+  const rawStart = asset.loop ? asset.loopStart ?? 0 : block ? block.start / 16 * asset.buffer.duration : 0;
+  const rawEnd = asset.loop ? asset.loopEnd ?? asset.buffer.duration : block ? block.end / 16 * asset.buffer.duration : asset.buffer.duration;
+  const start = Math.max(0, Math.min(asset.buffer.duration - 0.001, rawStart));
+  const end = Math.max(start + 0.001, Math.min(asset.buffer.duration, rawEnd));
+  const duration = Math.max(0.02, Number.isFinite(seconds) ? seconds : 0.02);
   if (!asset.loop && duration > 300) throw new Error("A stretched sample cannot exceed five minutes. Shorten its block or enable sample looping.");
   const key = `${asset.id}/${asset.revision}/${start}/${end}/${duration}/${semitones}/${asset.loop}`;
   let buffer = cache.get(key);
@@ -27,12 +29,16 @@ export function scheduleVoice(ctx: BaseAudioContext, track: Track, note: Note, m
   const sources: AudioScheduledSourceNode[] = [];
   const nodes: AudioNode[] = [];
   const gain = ctx.createGain(); nodes.push(gain);
-  gain.connect(destination);
+  const pan = Math.max(-1, Math.min(1, (track.pan ?? 0) / 100));
+  if (pan !== 0) {
+    const panner = ctx.createStereoPanner(); panner.pan.value = pan;
+    gain.connect(panner); panner.connect(destination); nodes.push(panner);
+  } else gain.connect(destination);
   const level = track.volume / 100 * master / 100 * (track.voice === "sample" ? 0.65 : 0.12);
-  if (level === 0) { gain.disconnect(); return { stop: () => {}, isEnded: () => true }; }
+  if (!Number.isFinite(level) || level <= 0) { nodes.forEach(node => node.disconnect()); return { stop: () => {}, isEnded: () => true }; }
   const root = track.voice === "sample" ? samples.find(a => a.id === track.sampleId)?.rootMidi ?? track.rootMidi : track.rootMidi;
   const semitones = note.midi - root + track.pitch + track.octave * 12;
-  let duration = Math.max(0.02, seconds);
+  let duration = Math.max(0.02, Number.isFinite(seconds) ? seconds : 0.02);
   const p = instrumentById(track.preset);
   if (track.voice === "noise" || track.voice === "kick") duration = Math.min(seconds, p.decay ?? duration);
   const release = track.voice === "sample" ? 0.012 : p.release;
@@ -78,34 +84,50 @@ export function scheduleVoice(ctx: BaseAudioContext, track: Track, note: Note, m
       }
     }
   }
-  sources.forEach(source => { source.start(when); source.stop(when + duration + release + 0.01); });
+  if (!sources.length) { gain.disconnect(); return { stop: () => {}, isEnded: () => true }; }
+  const safeTime = Number.isFinite(when) ? Math.max(0, when) : 0;
+  sources.forEach(source => { source.start(safeTime); source.stop(safeTime + duration + release + 0.01); });
   let stopped = false;
-  const stop = () => { if (stopped) return; stopped = true; sources.forEach(source => source.stop()); };
-  sources[0].onended = () => { stopped = true; sources.forEach(s => s.disconnect()); nodes.forEach(n => n.disconnect()); };
+  const stop = () => {
+    if (stopped) return;
+    stopped = true;
+    sources.forEach(source => { try { source.stop(); } catch { /* Already stopped by the audio clock. */ } });
+  };
+  const cleanup = () => { stopped = true; sources.forEach(source => source.disconnect()); nodes.forEach(node => node.disconnect()); };
+  sources[0].onended = cleanup;
   return { stop, isEnded: () => stopped };
 }
 
 export function songEvents(song: Song) {
   const unit = stepSeconds(song);
-  return song.tracks.flatMap(track => track.muted ? [] : track.bars.flatMap((block, bar) => !block ? [] : blockNotes(track, block).map(note => ({ track, block, note, when: (bar * 16 + note.start) * unit, duration: note.duration * unit })));
+  const transpose = song.transpose ?? 0;
+  return audibleTracks(song).flatMap(({ track, index: trackIndex }) => track.bars.flatMap((block, bar) => !block ? [] : blockNotes(track, block).map(note => {
+    const played = transposeNote(note, transpose);
+    return { track, trackIndex, block, note: played, when: (bar * 16 + note.start) * unit, duration: note.duration * unit };
+  })));
 }
 export async function renderSong(song: Song, samples: SampleAsset[], options: { track?: number; loopOnly?: boolean } = {}) {
   const unit = stepSeconds(song);
   const start = options.loopOnly ? (song.loop?.startBar ?? 0) * 16 * unit : 0;
   const finish = options.loopOnly ? (song.loop?.endBar ?? song.barCount) * 16 * unit : song.barCount * 16 * unit;
-  const events = songEvents(song).filter(e => e.when < finish && e.when + e.duration > start && (options.track === undefined || e.track === song.tracks[options.track]));
+  const events = songEvents(song).filter(e => e.when < finish && e.when + e.duration > start && (options.track === undefined || e.trackIndex === options.track));
   if (!events.length) throw new Error("No audible notes in this export selection.");
-  const tail = Math.max(...song.tracks.map(t => effectTail(t.effects, song.bpm, song.speed)));
+  if (!song.tracks.length) throw new Error("This song has no channels to render.");
+  const tail = Math.max(0.8, ...song.tracks.map(t => effectTail(t.effects, song.bpm, song.speed)));
   const end = finish - start + tail;
   if (end > 300) throw new Error("WAV export is limited to five minutes including effect tails.");
-  const ctx = new OfflineAudioContext(2, Math.ceil(end * 44100), 44100);
+  const frames = Math.ceil(end * 44100);
+  if (!Number.isFinite(frames) || frames <= 0) throw new Error("This song has no renderable duration.");
+  const ctx = new OfflineAudioContext(2, frames, 44100);
   const buses = song.tracks.map(t => createEffectsBus(ctx, t.effects, song.bpm, song.speed));
   const cache: SampleCache = new Map();
   try {
     for (const event of events) {
+      const bus = buses[event.trackIndex];
+      if (!bus) continue;
       const when = Math.max(start, event.when);
       const duration = Math.min(finish, event.when + event.duration) - when;
-      scheduleVoice(ctx, event.track, event.note, song.master, when - start, duration, samples, event.block, cache, buses[song.tracks.indexOf(event.track)].input);
+      scheduleVoice(ctx, event.track, event.note, song.master, when - start, duration, samples, event.block, cache, bus.input);
     }
     return await ctx.startRendering();
   } finally { buses.forEach(b => b.dispose()); }

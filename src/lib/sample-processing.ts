@@ -1,6 +1,6 @@
 export function cropBuffer(buffer: AudioBuffer, start: number, end: number) {
-  const first = Math.max(0, Math.floor(start * buffer.sampleRate));
-  const last = Math.min(buffer.length, Math.max(first + 1, Math.ceil(end * buffer.sampleRate)));
+  const first = Math.max(0, Math.min(buffer.length - 1, Math.floor((Number.isFinite(start) ? start : 0) * buffer.sampleRate)));
+  const last = Math.min(buffer.length, Math.max(first + 1, Math.ceil((Number.isFinite(end) ? end : buffer.duration) * buffer.sampleRate)));
   const result = new AudioBuffer({ length: last - first, sampleRate: buffer.sampleRate, numberOfChannels: buffer.numberOfChannels });
   for (let c = 0; c < buffer.numberOfChannels; c++) result.copyToChannel(buffer.getChannelData(c).slice(first, last), c);
   return result;
@@ -23,13 +23,14 @@ export function processBuffer(buffer: AudioBuffer, operation: "normalize" | "rev
 
 // Granular overlap-add keeps pitch independent of duration; extreme ratios can add texture.
 export function stretchBuffer(buffer: AudioBuffer, seconds: number, semitones: number) {
-  const size = Math.max(1, Math.round(seconds * buffer.sampleRate));
+  const safeSeconds = Number.isFinite(seconds) ? Math.min(600, Math.max(0.001, seconds)) : 0.02;
+  const size = Math.max(1, Math.round(safeSeconds * buffer.sampleRate));
   const result = new AudioBuffer({ length: size, sampleRate: buffer.sampleRate, numberOfChannels: buffer.numberOfChannels });
   const inputChannels = Array.from({ length: buffer.numberOfChannels }, (_, c) => buffer.getChannelData(c));
   const outputChannels = Array.from({ length: result.numberOfChannels }, (_, c) => result.getChannelData(c));
   const grain = Math.min(buffer.length, Math.max(32, Math.round(buffer.sampleRate * 0.045)));
   const hop = Math.max(1, Math.floor(grain / 4));
-  const pitch = 2 ** (semitones / 12);
+  const pitch = 2 ** (Math.max(-48, Math.min(48, Number.isFinite(semitones) ? semitones : 0)) / 12);
   const weights = new Float32Array(size);
   for (let dest = -grain; dest < size; dest += hop) {
     const center = (dest + grain / 2) / size * buffer.length;
@@ -54,11 +55,12 @@ export function stretchBuffer(buffer: AudioBuffer, seconds: number, semitones: n
   return result;
 }
 export function slicePoints(buffer: AudioBuffer, count: number, transient: boolean) {
-  if (!transient) return Array.from({ length: count + 1 }, (_, i) => i / count * buffer.duration);
+  const slices = Math.max(1, Math.min(64, Math.round(count)));
+  if (!transient) return Array.from({ length: slices + 1 }, (_, i) => i / slices * buffer.duration);
   const data = buffer.getChannelData(0);
   const window = Math.max(1, Math.floor(buffer.sampleRate * 0.01));
   const points = [0]; let previous = 0;
-  for (let i = 0; i < data.length && points.length < count; i += window) {
+  for (let i = 0; i < data.length && points.length < slices; i += window) {
     let sum = 0; for (let j = i; j < Math.min(data.length, i + window); j++) sum += data[j] ** 2;
     const rms = Math.sqrt(sum / window); const time = i / buffer.sampleRate;
     if (rms > 0.05 && rms > previous * 2.5 && time - points[points.length - 1] > 0.06) points.push(time);
