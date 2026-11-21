@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { Play, Square, SkipBack, Repeat2, Plus, Download, Copy, Trash2, Volume2, VolumeX, ChevronRight } from "lucide-react";
+import { Play, Square, SkipBack, Repeat2, Plus, Download, Copy, Trash2, Volume2, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { PixelArt } from "./PixelArt";
+import { SongArrangement } from "./SongArrangement";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -107,6 +108,19 @@ export function MusicGenerator({ active }: { active: boolean }) {
     if (assigned !== null) setPatternIndex(assigned);
     else setTracks(prev => prev.map((t, i) => i === row ? { ...t, bars: t.bars.map((p, b) => b === bar ? patternIndex : p) } : t));
   };
+  const moveBlock = (row: number, from: number, to: number) => {
+    const assigned = tracks[row].bars[from];
+    if (assigned === null || from === to) return;
+    setTracks(prev => prev.map((t, i) => {
+      if (i !== row) return t;
+      const bars = [...t.bars];
+      [bars[from], bars[to]] = [bars[to], bars[from]];
+      return { ...t, bars };
+    }));
+    setSelectedTrack(row);
+    setSelectedBar(to);
+    setPatternIndex(assigned);
+  };
   const assignPattern = (index: number) => { setPatternIndex(index); updateTrack({ bars: track.bars.map((p, i) => i === selectedBar ? index : p) }); };
   const newSong = () => {
     if (!window.confirm("Start a blank song? Your current edits will be replaced.")) return;
@@ -136,16 +150,17 @@ export function MusicGenerator({ active }: { active: boolean }) {
         <div className="mb-3 flex items-center justify-between gap-2"><h2 id="song-heading" className="bezel-label">01 / SONG ARRANGEMENT</h2><span className="bezel-label text-[8px]"><span className={cn("mr-2 inline-block h-1.5 w-1.5 rounded-full", playing ? "bg-[#cbdc8e]" : "bg-[#898c7b]")} />{playing ? "PLAYING" : "READY TO PLAY"}</span></div>
         <div className="game-screen rounded-md p-3 sm:p-4">
           <div className="lcd-heading mb-4 flex items-center justify-between border-b-2 border-[var(--lcd-line)] pb-3"><span className="font-pixel text-lg tracking-wider">LET’S MAKE SOME NOISE.</span><PixelArt type="ghost" className="hidden h-8 w-8 sm:block" /></div>
-          <div className="overflow-x-auto pb-1"><div className="min-w-[680px]">
-            <div className="arrangement-row mb-2"><div className="text-[9px] font-bold tracking-widest">CHANNEL / SOUND</div>{Array.from({ length: 8 }, (_, i) => <div key={i} className={cn("text-center text-[10px] font-bold", playing && Math.floor(position / 16) === i && "bar-current")}>{String(i + 1).padStart(2, "0")}</div>)}</div>
-            {tracks.map((t, row) => <div key={t.name} className="arrangement-row mb-2">
-              <div className="flex items-center gap-2"><button aria-label={`${t.muted ? "Unmute" : "Mute"} ${t.name}`} onClick={() => setTracks(prev => prev.map((v, i) => i === row ? { ...v, muted: !v.muted } : v))} className="lcd-mute rounded p-1">{t.muted ? <VolumeX size={13} /> : <Volume2 size={13} />}</button><button onClick={() => { setSelectedTrack(row); setPatternIndex(t.bars[selectedBar] ?? 0); }} className={cn("text-left", selectedTrack === row && "font-bold")}><span className="block text-[11px]">{t.name}</span><span className="block text-[8px] tracking-wider opacity-80">{t.chip}</span></button></div>
-              {t.bars.map((p, bar) => <button key={bar} onClick={() => selectBlock(row, bar)} aria-label={`${t.name}, bar ${bar + 1}${p === null ? ", add pattern" : `, pattern ${p === 0 ? "A" : "B"}`}`} aria-pressed={selectedTrack === row && selectedBar === bar} className={cn("song-block relative flex h-11 items-center justify-between rounded px-2", p !== null && "filled", p === 1 && "variant", t.muted && "muted", selectedTrack === row && selectedBar === bar && "block-selected", playing && Math.floor(position / 16) === bar && "block-playing")}>
-                {p === null ? <span className="mx-auto text-base opacity-40">+</span> : <><span className="text-xs font-bold">{p === 0 ? "A" : "B"}</span><span className="block-wave flex h-5 items-center gap-[2px]" aria-hidden="true">{t.patterns[p].filter((_, i) => i % 2 === 0).map((v, i) => <i key={i} style={{ height: v ? `${8 + i % 3 * 4}px` : "3px" }} />)}</span></>}
-              </button>)}
-            </div>)}
-          </div></div>
-          <div className="mt-3 flex flex-wrap justify-between gap-2 border-t-2 border-[var(--lcd-line)] pt-3 text-[9px] font-bold tracking-wide"><span>5 CHANNELS · 8 BARS · 4/4</span><span>SELECT A BLOCK TO EDIT ↓</span></div>
+          <SongArrangement
+            tracks={tracks}
+            selectedTrack={selectedTrack}
+            selectedBar={selectedBar}
+            playing={playing}
+            position={position}
+            onSelectBlock={selectBlock}
+            onSelectTrack={row => { setSelectedTrack(row); setPatternIndex(tracks[row].bars[selectedBar] ?? 0); }}
+            onToggleMute={row => setTracks(prev => prev.map((t, i) => i === row ? { ...t, muted: !t.muted } : t))}
+            onMoveBlock={moveBlock}
+          />
         </div>
         <div className="mt-3 flex items-center justify-between"><span className="bezel-label text-[8px]">DOT MATRIX WITH STEREO SOUND</span><div className="flex gap-1" aria-hidden="true"><i className="h-1 w-8 bg-[#a95273]" /><i className="h-1 w-4 bg-[#737b96]" /></div></div>
       </section>
