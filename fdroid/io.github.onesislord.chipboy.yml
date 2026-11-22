@@ -2,13 +2,13 @@ Categories:
   - Multimedia
 License: MIT
 AuthorName: Chipboy Studio contributors
-WebSite: https://github.com/ones-is-lord/chipboy-studio
+WebSite: https://ones-is-lord.github.io/chipboy-studio/
 SourceCode: https://github.com/ones-is-lord/chipboy-studio
 IssueTracker: https://github.com/ones-is-lord/chipboy-studio/issues
-Changelog: https://github.com/ones-is-lord/chipboy-studio/blob/main/CHANGELOG.md
+Changelog: https://github.com/ones-is-lord/chipboy-studio/blob/HEAD/CHANGELOG.md
 
 AutoName: Chipboy Studio
-Summary: Pocket-sized chiptune studio
+Summary: 'Pocket-sized chiptune studio: sequencer, piano roll, sampler and WAV export'
 Description: |
   Chipboy Studio is a complete little chiptune workstation that runs entirely
   on your device. It has a 16-step sequencer, a piano roll, 30 synth presets, a
@@ -35,12 +35,12 @@ Builds:
     init:
       - npm install -g pnpm@12.21.0
       - pnpm --dir .. install --frozen-lockfile
-    prebuild:
-      - pnpm --dir .. build
-      - pnpm --dir .. exec cap sync android
     gradle:
       - assembleRelease
     output: app/build/outputs/apk/release/app-release-unsigned.apk
+    prebuild:
+      - pnpm --dir .. build
+      - pnpm --dir .. exec cap sync android
     scanignore:
       - node_modules
       - dist

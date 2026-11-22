@@ -84,6 +84,7 @@ See [docs/ANDROID.md](docs/ANDROID.md) for signing and device install steps.
 | Audio scheduling | Unit test in `src/lib/audio-engine.test.ts` |
 | UI behavior | Manual browser check plus screenshots in the pull request |
 | Android shell, permissions or native share | Manual APK install on a device or emulator, plus `pnpm android:lint` |
+| F-Droid recipe or listing | `pnpm fdroid:lint` |
 
 If a bug is fixed, add a regression test where the logic is testable. If the bug is purely visual, describe the before and after and include screenshots.
 
@@ -92,6 +93,7 @@ If a bug is fixed, add a regression test where the logic is testable. If the bug
 - [ ] The change is focused and described.
 - [ ] `pnpm check` passes.
 - [ ] `pnpm audit` reports no known vulnerabilities.
+- [ ] `pnpm fdroid:lint` passes if the F-Droid recipe or listing changed.
 - [ ] New behavior has tests or a clear manual verification note.
 - [ ] Documentation is updated when needed.
 - [ ] UI changes include screenshots at desktop and mobile widths.

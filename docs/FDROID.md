@@ -11,6 +11,22 @@ The compatibility work is:
 All three are in this repository. `fdroid/io.github.onesislord.chipboy.yml` is
 the ready-to-copy recipe.
 
+## Submission status
+
+| Step | Status |
+| --- | --- |
+| FOSS licence and public source | Ready |
+| Fastlane listing and screenshots | Ready |
+| `fdroiddata` recipe | Ready |
+| `fdroid lint` | Clean with `fdroidserver` 2.4.5 |
+| Clean build from the `v1.2.0` tag | Pass; unsigned 1.2.0 APK produced |
+| GitLab account and `fdroiddata` fork | Needed |
+| Merge request to `fdroid/fdroiddata` | Not opened |
+
+The repository does not contain GitLab credentials, so the merge request itself
+must be opened by the account owner. Everything before that step is prepared and
+tested. See [Submit to F-Droid](#submit-to-f-droid) for the exact request.
+
 ## Compatibility checklist
 
 | Requirement | Status |
@@ -25,6 +41,7 @@ the ready-to-copy recipe.
 | Buildable from source | `pnpm install --frozen-lockfile`, `pnpm build`, `cap sync android`, Gradle |
 | Reproducible dependency graph | `pnpm-lock.yaml` is committed |
 | Fastlane metadata | `fastlane/metadata/android/en-US/` |
+| Font licences | Full OFL texts in `licenses/`, summary in `THIRD_PARTY_LICENSES.md` |
 | Signed by F-Droid | The recipe builds an unsigned release APK; F-Droid signs it |
 | Version code increases | `2` for `1.2.0`; bump for every release |
 
@@ -52,13 +69,53 @@ fastlane/metadata/android/en-US/
 F-Droid reads these files directly from the app repository. Keep the changelog
 filename equal to the Android `versionCode`.
 
+## Local validation
+
+Run the lightweight recipe linter from the repository root:
+
+```bash
+pip install fdroidserver
+pnpm fdroid:lint
+```
+
+The script copies the recipe into a temporary metadata tree and runs
+`fdroid lint`. The current recipe passes with no warnings.
+
+To reproduce the F-Droid build from a clean checkout:
+
+```bash
+git clone --depth=1 --branch v1.2.0 \
+  https://github.com/ones-is-lord/chipboy-studio.git /tmp/chipboy-fdroid
+cd /tmp/chipboy-fdroid
+pnpm install --frozen-lockfile
+pnpm build
+pnpm exec cap sync android
+cd android
+./gradlew assembleRelease
+```
+
+The expected output is
+`android/app/build/outputs/apk/release/app-release-unsigned.apk` with
+`versionCode 2`, `versionName 1.2.0`, and no `INTERNET` permission. This was
+verified against the `v1.2.0` tag on 2026-11-22.
+
+To check whether F-Droid will see a newer version, run this from a full
+`fdroiddata` checkout:
+
+```bash
+fdroid checkupdates --allow-dirty io.github.onesislord.chipboy
+```
+
+With `v1.2.0` tagged and the recipe at `1.2.0`, the check should find no update.
+
 ## Submit to F-Droid
 
 F-Droid's canonical metadata repository is on GitLab:
 
 <https://gitlab.com/fdroid/fdroiddata>
 
-1. Create a GitLab account if you do not have one.
+1. Create a GitLab account if you do not have one. The current GitHub account
+   `ones-is-lord` does not have a matching public GitLab account.
 2. Fork `fdroid/fdroiddata` on GitLab.
 3. Clone your fork.
 4. Copy `fdroid/io.github.onesislord.chipboy.yml` to
@@ -70,9 +127,37 @@ F-Droid's canonical metadata repository is on GitLab:
    fdroid rewritemeta io.github.onesislord.chipboy
    ```
 
-6. Commit, push to your fork and open a merge request against
-   `fdroid/fdroiddata:master`.
-7. Answer the maintainers' questions. The first review can take days or weeks.
+6. Commit with the `New App` label convention and push to your fork:
+
+   ```bash
+   git checkout -b io.github.onesislord.chipboy
+   git add metadata/io.github.onesislord.chipboy.yml
+   git commit -m "New App: io.github.onesislord.chipboy"
+   git push origin io.github.onesislord.chipboy
+   ```
+
+7. Open a merge request against `fdroid/fdroiddata:master` with:
+
+   - **Title:** `New App: io.github.onesislord.chipboy`
+   - **Labels:** `New App`
+   - **Body:** copy [`fdroid/MR_BODY.md`](../fdroid/MR_BODY.md), or use:
+
+     ```markdown
+     This merge request was created by an AI agent (OpenHands) on behalf of @ones-is-lord.
+
+     Adds Chipboy Studio, an offline chiptune studio.
+
+     - Source: https://github.com/ones-is-lord/chipboy-studio
+     - Licence: MIT
+     - Version: 1.2.0 (versionCode 2)
+     - Tag: v1.2.0
+     - Build: Capacitor 8 + Vite 8 + Gradle, unsigned release APK
+     - Offline: no INTERNET permission; all assets bundled
+     - Metadata: fastlane listing and screenshots in the upstream repository
+     - Local checks: `fdroid lint` clean; clean build from `v1.2.0` succeeded
+     ```
+
+8. Answer the maintainers' questions. The first review can take days or weeks.
 
 A GitHub fork of `fdroiddata` is not used for submission. The canonical project
 is on GitLab, and F-Droid's build pipeline reads metadata from there.
@@ -101,6 +186,10 @@ as the F-Droid artifact.
 
 The `scanignore` entries keep the scanner out of `node_modules` and `dist`,
 which are generated during `init` and `prebuild`.
+
+The app bundles three OFL fonts through Fontsource. The complete licence texts
+are in [`licenses/`](../licenses/) and summarized in
+[`THIRD_PARTY_LICENSES.md`](../THIRD_PARTY_LICENSES.md).
 
 ## Buildserver notes
 

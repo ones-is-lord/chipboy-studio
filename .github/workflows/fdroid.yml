@@ -1,0 +1,47 @@
+name: F-Droid metadata
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "fdroid/**"
+      - "fastlane/**"
+      - "docs/FDROID.md"
+      - "scripts/check-fdroid.sh"
+      - ".github/workflows/fdroid.yml"
+  pull_request:
+    paths:
+      - "fdroid/**"
+      - "fastlane/**"
+      - "docs/FDROID.md"
+      - "scripts/check-fdroid.sh"
+      - ".github/workflows/fdroid.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fdroid-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint the F-Droid recipe
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install fdroidserver
+        run: pip install fdroidserver
+
+      - name: Lint the metadata
+        run: bash scripts/check-fdroid.sh

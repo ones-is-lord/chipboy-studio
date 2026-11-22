@@ -18,6 +18,7 @@
     "android:debug": "pnpm android:sync && cd android && ./gradlew assembleDebug",
     "android:release": "pnpm android:sync && cd android && ./gradlew assembleRelease",
     "android:lint": "cd android && ./gradlew lint",
+    "fdroid:lint": "bash scripts/check-fdroid.sh",
     "android:icons": "capacitor-assets generate --android",
     "android:open": "cap open android"
   },

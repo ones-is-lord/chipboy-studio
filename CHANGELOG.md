@@ -4,6 +4,18 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+- `pnpm fdroid:lint` and an F-Droid metadata CI workflow that validate the `fdroiddata` recipe on every relevant change.
+- Full SIL Open Font License texts for Press Start 2P, Pixelify Sans and Nunito in `licenses/`, summarized in `THIRD_PARTY_LICENSES.md`.
+- F-Droid submission packet with the exact merge request title, label and body in `docs/FDROID.md`.
+
+### Changed
+- F-Droid listing now points `WebSite` at the GitHub Pages build, uses the 75-character summary without a trailing period, and links the changelog through `/HEAD/` so it survives branch changes.
+- The F-Droid recipe README and contributor checklist document the local lint and clean-build verification.
+
+### Fixed
+- The F-Droid summary is quoted so `fdroid lint` can parse the colon in the listing text.
+
 ## [1.2.0] - 2026-11-21
 
 ### Added

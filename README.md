@@ -255,7 +255,9 @@ The repository ships F-Droid-compatible metadata:
 - `fastlane/metadata/android/en-US/` with the title, summary, description, changelog, icon, feature graphic and screenshots.
 - `fdroid/io.github.onesislord.chipboy.yml`, a ready-to-copy build recipe for the [fdroiddata](https://gitlab.com/fdroid/fdroiddata) repository.
 
-Chipboy Studio is MIT licensed, has no tracking, no ads and no network dependency. The Android build uses only free and open-source libraries and can be built from source with the Android SDK and the committed pnpm lockfile. See [docs/FDROID.md](docs/FDROID.md) for the submission checklist and the exact steps to open an fdroiddata merge request.
+Chipboy Studio is MIT licensed, has no tracking, no ads and no network dependency. The Android build uses only free and open-source libraries and can be built from source with the Android SDK and the committed pnpm lockfile. The recipe passes `fdroid lint`, and the clean build from the `v1.2.0` tag produces an unsigned APK with no internet permission.
+
+Run `pnpm fdroid:lint` after editing the recipe. The fdroiddata merge request still has to be opened from a GitLab account; the repository does not store GitLab credentials. See [docs/FDROID.md](docs/FDROID.md) for the submission checklist and the exact merge request text.
 
 ## Testing and quality
 
@@ -265,13 +267,14 @@ pnpm check
 
 The suite covers song timing and arrangement helpers, project normalization and storage, share-link encoding, riff validity and custom-riff storage, transpose and solo behavior, WAV headers and sample quantization, sample processing, effect tails, instrument metadata and event scheduling. Audio tests use a small `AudioBuffer` polyfill so the real processing code runs under Node.
 
-The CI workflow runs the same command on every push and pull request, plus a production build. Dependabot keeps npm and GitHub Actions dependencies current.
+The CI workflow runs the same command on every push and pull request, plus a production build. A separate F-Droid workflow lints the `fdroiddata` recipe. Dependabot keeps npm and GitHub Actions dependencies current.
 
 ## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md)
 - [Android build and install](docs/ANDROID.md)
 - [F-Droid compatibility and submission](docs/FDROID.md)
+- [Third-party licenses](THIRD_PARTY_LICENSES.md)
 - [Inspired by MTV Music Generator](docs/MUSIC-GENERATOR.md)
 - [Project file format](docs/PROJECT_FORMAT.md)
 - [Development guide](docs/DEVELOPMENT.md)
