@@ -170,8 +170,12 @@ repository root.
 
 ```yaml
 subdir: android
-init:
+sudo:
+  - apt-get update
+  - apt-get install -y -t trixie openjdk-21-jdk-headless
+  - apt-get install -y -t trixie nodejs npm
   - npm install -g pnpm@12.21.0
+init:
   - pnpm --dir .. install --frozen-lockfile
 prebuild:
   - pnpm --dir .. build
@@ -193,20 +197,15 @@ are in [`licenses/`](../licenses/) and summarized in
 
 ## Buildserver notes
 
-The recipe installs Node.js 22 and OpenJDK 21 with `sudo`. F-Droid's buildserver
-must provide Node.js 20.19 or newer for Vite 8 and pnpm 12. The recipe pins
-Node.js 22 so the build does not depend on the image's default Node.js:
+The recipe installs OpenJDK 21 and Node.js from Debian `trixie` with `sudo`.
+F-Droid's buildserver must provide Node.js 20.19 or newer for Vite 8 and pnpm
+12; `trixie`'s Node.js satisfies that, so the recipe does not depend on the
+image's default Node.js or on a NodeSource pipe.
 
-```yaml
-sudo:
-  - apt-get update
-  - apt-get install -y curl ca-certificates openjdk-21-jdk-headless
-  - curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
-  - apt-get install -y nodejs
-```
-
-Check the current buildserver image before changing this. Avoid adding a
-network call to the app itself; the app must stay offline.
+`npm install -g pnpm` runs as root so the binary lands in `/usr/local/bin` and
+is on the build user's `PATH`. Check the current buildserver image before
+changing this. Avoid adding a network call to the app itself; the app must stay
+offline.
 
 ## Updating a published app
 

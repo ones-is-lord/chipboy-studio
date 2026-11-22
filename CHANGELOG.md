@@ -12,6 +12,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ### Changed
 - F-Droid listing now points `WebSite` at the GitHub Pages build, uses the 75-character summary without a trailing period, and links the changelog through `/HEAD/` so it survives branch changes.
 - The F-Droid recipe README and contributor checklist document the local lint and clean-build verification.
+- The recipe installs OpenJDK 21 and Node.js from Debian `trixie` instead of piping a NodeSource script into a root shell.
 
 ### Fixed
 - The F-Droid summary is quoted so `fdroid lint` can parse the colon in the listing text.

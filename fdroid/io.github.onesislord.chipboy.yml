@@ -29,11 +29,10 @@ Builds:
     subdir: android
     sudo:
       - apt-get update
-      - apt-get install -y curl ca-certificates openjdk-21-jdk-headless
-      - curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
-      - apt-get install -y nodejs
-    init:
+      - apt-get install -y -t trixie openjdk-21-jdk-headless
+      - apt-get install -y -t trixie nodejs npm
       - npm install -g pnpm@12.21.0
+    init:
       - pnpm --dir .. install --frozen-lockfile
     gradle:
       - assembleRelease
