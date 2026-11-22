@@ -10,3 +10,5 @@ Adds Chipboy Studio, an offline chiptune studio.
 - Offline: no INTERNET permission; all assets bundled
 - Metadata: fastlane listing and screenshots in the upstream repository
 - Local checks: `fdroid lint` clean; clean build from `v1.2.0` succeeded
+- `fdroiddata` CI: all jobs green (lint, rewritemeta, metadata tools, build and `check apk`)
+- Suggested label: `New App`

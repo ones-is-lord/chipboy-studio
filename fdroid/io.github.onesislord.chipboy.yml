@@ -8,7 +8,6 @@ IssueTracker: https://github.com/ones-is-lord/chipboy-studio/issues
 Changelog: https://github.com/ones-is-lord/chipboy-studio/blob/HEAD/CHANGELOG.md
 
 AutoName: Chipboy Studio
-Summary: 'Pocket-sized chiptune studio: sequencer, piano roll, sampler and WAV export'
 Description: |
   Chipboy Studio is a complete little chiptune workstation that runs entirely
   on your device. It has a 16-step sequencer, a piano roll, 30 synth presets, a
@@ -29,20 +28,21 @@ Builds:
     subdir: android
     sudo:
       - apt-get update
-      - apt-get install -y -t trixie openjdk-21-jdk-headless
-      - apt-get install -y -t trixie nodejs npm
+      - apt-get install -y -t trixie openjdk-21-jdk-headless curl
+      - curl -fsSLo /tmp/node.tar.gz https://nodejs.org/dist/v22.23.5/node-v22.23.5-linux-x64.tar.gz
+      - echo "c54118104acc524633b5abe106bbf44a53126ec8b4e5fa105cb92b5d7de8a1a1  /tmp/node.tar.gz"
+        | sha256sum -c -
+      - tar -xzf /tmp/node.tar.gz --strip-components=1 -C /usr/local
       - npm install -g pnpm@12.21.0
-    init:
-      - pnpm --dir .. install --frozen-lockfile
+    init: pnpm --dir .. install --frozen-lockfile
     gradle:
-      - assembleRelease
+      - yes
     output: app/build/outputs/apk/release/app-release-unsigned.apk
     prebuild:
       - pnpm --dir .. build
       - pnpm --dir .. exec cap sync android
     scanignore:
       - node_modules
-      - dist
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags

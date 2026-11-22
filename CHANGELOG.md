@@ -12,10 +12,12 @@ All notable changes to this project are documented here. The format follows [Kee
 ### Changed
 - F-Droid listing now points `WebSite` at the GitHub Pages build, uses the 75-character summary without a trailing period, and links the changelog through `/HEAD/` so it survives branch changes.
 - The F-Droid recipe README and contributor checklist document the local lint and clean-build verification.
-- The recipe installs OpenJDK 21 and Node.js from Debian `trixie` instead of piping a NodeSource script into a root shell.
+- The recipe installs OpenJDK 21 from Debian `trixie` and a SHA-256-verified Node.js 22.23.5 tarball; Capacitor 8 needs Node.js 22 or newer.
+- The F-Droid summary lives in `fdroid/en-US/summary.txt`, matching `fdroiddata`'s translatable-summary layout.
 
 ### Fixed
-- The F-Droid summary is quoted so `fdroid lint` can parse the colon in the listing text.
+- The F-Droid recipe now matches `fdroiddata` checks: the summary moved to `en-US/summary.txt`, `init` is a single command, the Gradle task is `yes`, and the unused `dist` scanignore is gone.
+- The recipe downloads a SHA-256-verified Node.js 22.23.5 tarball because the buildserver's Node.js 20 is too old for Capacitor 8.
 
 ## [1.2.0] - 2026-11-21
 
