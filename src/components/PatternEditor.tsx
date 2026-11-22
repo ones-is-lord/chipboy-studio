@@ -5,6 +5,7 @@ import { Slider } from "@/components/ui/slider";
 import { PixelArt } from "./PixelArt";
 import { PianoRoll } from "./PianoRoll";
 import { BlockEditor } from "./BlockEditor";
+import { EffectsRack } from "./EffectsRack";
 import { patternLabel, type Note, type SongBlock, type Track } from "@/lib/song";
 import { instruments, instrumentById } from "@/lib/instruments";
 import { defaultEffects, type Effects } from "@/lib/effects";
@@ -53,14 +54,8 @@ export function PatternEditor({ track, block, patternIndex, bar, barCount, posit
             <div><div className="mb-3 flex justify-between text-[9px] font-bold tracking-wider"><span>VOLUME</span><span>{track.volume}%</span></div><Slider aria-label="Selected track volume" className="console-slider" value={[track.volume]} onValueChange={([v]) => onTrack({ volume: v }, "track-volume")} onValueCommit={onFinish} max={100} /></div>
             <div><div className="mb-3 flex justify-between text-[9px] font-bold tracking-wider"><span>PITCH</span><span>{track.pitch > 0 ? "+" : ""}{track.pitch} ST</span></div><Slider aria-label="Selected track pitch" className="console-slider" value={[track.pitch]} onValueChange={([v]) => onTrack({ pitch: v }, "track-pitch")} onValueCommit={onFinish} min={-12} max={12} /></div>
           </div>
-          <div className="mt-5 grid grid-cols-2 gap-6">
-            <div><div className="mb-3 flex justify-between text-[9px] font-bold tracking-wider"><span>PAN</span><span>{track.pan === 0 || track.pan === undefined ? "CENTER" : `${Math.abs(track.pan)}% ${track.pan < 0 ? "L" : "R"}`}</span></div><Slider aria-label="Selected track pan" className="console-slider" value={[track.pan ?? 0]} onValueChange={([v]) => onTrack({ pan: v }, "track-pan")} onValueCommit={onFinish} min={-100} max={100} /></div>
-            <div><div className="mb-3 flex justify-between text-[9px] font-bold tracking-wider"><span>REVERB SEND</span><span>{Math.round((effects.reverb ?? 0) * 100)}%</span></div><Slider aria-label="Selected track reverb send" className="console-slider" value={[Math.round((effects.reverb ?? 0) * 100)]} onValueChange={([v]) => setEffects({ reverb: v / 100 }, "track-reverb")} onValueCommit={onFinish} max={100} /></div>
-          </div>
-          <div className="mt-5 grid grid-cols-2 gap-6">
-            <div><div className="mb-3 flex justify-between text-[9px] font-bold tracking-wider"><span>DELAY SEND</span><span>{Math.round((effects.delay ?? 0) * 100)}%</span></div><Slider aria-label="Selected track delay send" className="console-slider" value={[Math.round((effects.delay ?? 0) * 100)]} onValueChange={([v]) => setEffects({ delay: v / 100 }, "track-delay")} onValueCommit={onFinish} max={100} /></div>
-            <div className="flex items-end justify-between gap-3"><div><span className="mb-3 block text-[9px] font-bold tracking-wider">CHANNEL FX</span><span className="text-[9px] text-[var(--case-muted)]">Applies on the next play</span></div><button onClick={() => setEffects({ enabled: !effects.enabled }, "track-fx")} aria-pressed={effects.enabled} className={cn("console-tab rounded-md px-3 py-2 text-[9px] font-bold uppercase", effects.enabled && "selected")}>{effects.enabled ? "FX ON" : "FX OFF"}</button></div>
-          </div>
+          <div className="mt-5"><div className="mb-3 flex justify-between text-[9px] font-bold tracking-wider"><span>PAN</span><span>{track.pan === 0 || track.pan === undefined ? "CENTER" : `${Math.abs(track.pan)}% ${track.pan < 0 ? "L" : "R"}`}</span></div><Slider aria-label="Selected track pan" className="console-slider" value={[track.pan ?? 0]} onValueChange={([v]) => onTrack({ pan: v }, "track-pan")} onValueCommit={onFinish} min={-100} max={100} /></div>
+          <EffectsRack effects={effects} onChange={setEffects} onCommit={onFinish} />
           <p className="mt-5 text-[9px] leading-relaxed text-[var(--case-muted)]">Pattern notes are shared by matching blocks. Duplicate a block to edit its copy independently. All musical edits support Undo/Redo.</p>
         </div>
       </div>

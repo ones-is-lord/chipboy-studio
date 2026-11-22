@@ -175,7 +175,7 @@ export function ProjectManager() {
   return (
     <div className="space-y-5">
       <div className="section-heading flex flex-wrap items-center justify-between gap-3">
-        <span>05 / PROJECT VAULT</span>
+        <span>06 / PROJECT VAULT</span>
         <span className="text-[9px]">{projects.length} SAVED · AUTOSAVE ON</span>
       </div>
 

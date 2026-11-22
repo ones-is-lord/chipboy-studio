@@ -1,7 +1,7 @@
 import { instrumentById } from "./instruments";
 import { audibleTracks, blockNotes, stepSeconds, transposeNote, type Note, type SampleAsset, type Song, type SongBlock, type Track } from "./song";
 import { cropBuffer, stretchBuffer } from "./sample-processing";
-import { createEffectsBus, effectTail } from "./effects";
+import { createEffectsBus, effectTail, normalizeEffects } from "./effects";
 
 export type Voice = { stop: () => void; isEnded: () => boolean };
 export type SampleCache = Map<string, AudioBuffer>;
@@ -40,6 +40,7 @@ export function scheduleVoice(ctx: BaseAudioContext, track: Track, note: Note, m
   const semitones = note.midi - root + track.pitch + track.octave * 12;
   let duration = Math.max(0.02, Number.isFinite(seconds) ? seconds : 0.02);
   const p = instrumentById(track.preset);
+  const fx = track.effects?.enabled ? normalizeEffects(track.effects) : null;
   if (track.voice === "noise" || track.voice === "kick") duration = Math.min(seconds, p.decay ?? duration);
   const release = track.voice === "sample" ? 0.012 : p.release;
   gain.gain.setValueAtTime(0, when);
@@ -57,8 +58,13 @@ export function scheduleVoice(ctx: BaseAudioContext, track: Track, note: Note, m
   } else {
     const filter = ctx.createBiquadFilter(); nodes.push(filter);
     filter.type = track.voice === "noise" ? "highpass" : "lowpass";
-    filter.frequency.value = Math.min(ctx.sampleRate / 2 - 1, p.noise ?? p.cutoff);
-    filter.Q.value = track.preset === "acid" ? 8 : 0.7;
+    const baseFrequency = Math.min(ctx.sampleRate / 2 - 1, p.noise ?? p.cutoff);
+    filter.frequency.value = baseFrequency;
+    filter.Q.value = Math.max(track.preset === "acid" ? 8 : 0.7, 0.7 + (fx?.acid ?? 0) * 18);
+    if (fx && fx.acid > 0 && track.voice !== "noise") {
+      filter.frequency.setValueAtTime(Math.min(ctx.sampleRate / 2 - 1, baseFrequency * (1 + fx.acid * 6)), when);
+      filter.frequency.exponentialRampToValueAtTime(Math.max(80, baseFrequency * (1 - fx.acid * 0.65)), when + Math.max(0.08, Math.min(duration, 0.45)));
+    }
     filter.connect(gain);
     if (track.voice === "noise") {
       const buffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * (duration + release)), ctx.sampleRate);

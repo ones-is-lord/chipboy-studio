@@ -14,7 +14,7 @@
 
 ![Chipboy Studio, a cream and green handheld console interface with a step sequencer](docs/screenshot.png)
 
-Chipboy Studio is a complete little music workstation: a 16-step sequencer, a piano roll, 30 synth presets, a microphone sampler with a slicer and 16 pads, project slots, share links and offline WAV export. No account. No server. No samples uploaded anywhere.
+Chipboy Studio is a complete little music workstation: a 16-step sequencer, a piano roll, 42 synth presets, an 18-lane loop-station drum machine, a microphone sampler with a slicer and 16 pads, project slots, share links and offline WAV export. No account. No server. No samples uploaded anywhere.
 
 Built with React 19, TypeScript, Vite, Tailwind CSS and the Web Audio API. Styled like a very good 1990s handheld that never existed.
 
@@ -39,11 +39,11 @@ Built with React 19, TypeScript, Vite, Tailwind CSS and the Web Audio API. Style
 
 ### Song maker
 
-- Five channels per song, 16 bars by default, up to 64 bars.
+- Up to 32 channels per song, 16 bars by default, up to 64 bars.
 - Two patterns per channel. Matching blocks share a pattern; duplicate a block to edit an independent copy.
 - Multi-bar clips from 1 to 8 bars, with drag-to-move and drag-to-swap arrangement editing.
 - Tempo from 40 to 240 BPM, speed from 0.25x to 2x, 4/4, and a song-wide key transpose from −12 to +12 semitones.
-- Per-channel volume, pitch, pan, mute and solo, plus reverb and delay sends and a master volume.
+- Per-channel volume, pitch, pan, mute and solo, plus a full FX rack and a master volume.
 - Undo and redo across musical edits.
 - Transport with play, pause, stop and return-to-start.
 
@@ -56,15 +56,26 @@ Built with React 19, TypeScript, Vite, Tailwind CSS and the Web Audio API. Style
 
 ### Riff library
 
-- 30 built-in one-bar riffs across drum loops, basslines, melodies, chords/arps and FX.
+- 95 built-in one-bar riffs across drum loops, modern beats, basslines, melodies, chords/arps, retro game music, cinematic cues and FX.
 - Audition any riff at the current song tempo, then stamp it into the selected channel and pattern in one click.
 - Stamping switches the channel to the riff's instrument and root note while keeping the channel name; sample channels keep their audio and fit the riff by octave.
 - Capture the selected pattern as a named custom riff. Up to 40 custom riffs live in browser storage.
-- Category filters, a 16-step mini-grid on every card, and a delete action for custom riffs.
+- Category filters, name search, a 16-step mini-grid on every card, and a delete action for custom riffs.
+
+### Beat lab
+
+![Chipboy Studio Beat lab, an 18-lane drum machine with a playing step grid](docs/beat-lab.png)
+
+- An 18-lane, 16-step rows × columns drum machine with four pattern banks (A–D) and a loop-station transport.
+- Lanes for kick, double bass, snare, snare roll, toms 1–3, closed hat, open hat, cymbal, ride, timpani, kettle bell, cowbell, clap 1, clap 2 and two custom slots.
+- BPM slider from 40 to 240, swing from 0 to 60%, master level and per-lane preview.
+- Custom A and B can load any preset from the instrument library, including melodic sounds.
+- Copy a bank, randomize a musical starting point, clear a bank or start a fresh pattern.
+- Send the active lanes to the song as individual drum-kit channels at the selected bar, then shape them with the FX rack.
 
 ### Instruments
 
-- 30 original presets across chiptune, synths, bass, keys and drums.
+- 42 original presets across chiptune, synths, bass, keys and drums.
 - Preview any preset, assign it to the selected channel or add a new channel.
 - Waveform previews generated from the same parameters used by the audio engine.
 
@@ -87,10 +98,11 @@ Built with React 19, TypeScript, Vite, Tailwind CSS and the Web Audio API. Style
 
 ### Interface
 
-- Five workspaces: Song maker, Instruments, Sampler, Riffs and Projects.
+- Six workspaces: Song maker, Instruments, Sampler, Riffs, Beat lab and Projects.
 - SNES-style pixel-art controller overlaid on a music note, with high-contrast outlines, animated sprites and a blinking power LED.
 - SNES-inspired textured plastic shell and bezels, a glass-like highlight across the screen, and chunky bevelled hardware controls with extra-bold labels that fit every button size.
 - Self-hosted pixel fonts (Press Start 2P and Pixelify Sans) and a rounded body font (Nunito). No Google Fonts request at runtime.
+- A 23-control FX rack with presets for clean, crunch, acid, wide, dub, lo-fi, compression, space and destroy.
 - Bolder pixel typography with layered letter shadows, scanline and glass-sheen overlays, LCD readouts and a reduced-motion mode that respects `prefers-reduced-motion`.
 - Responsive layout, keyboard navigation and visible focus states.
 - Installable web app manifest, offline service worker and social preview image.
@@ -265,7 +277,7 @@ Run `pnpm fdroid:lint` after editing the recipe. The fdroiddata merge request st
 pnpm check
 ```
 
-The suite covers song timing and arrangement helpers, project normalization and storage, share-link encoding, riff validity and custom-riff storage, transpose and solo behavior, WAV headers and sample quantization, sample processing, effect tails, instrument metadata and event scheduling. Audio tests use a small `AudioBuffer` polyfill so the real processing code runs under Node.
+The suite covers song timing and arrangement helpers, project normalization and storage, share-link encoding, riff validity and custom-riff storage, drum-machine patterns and song conversion, transpose and solo behavior, WAV headers and sample quantization, sample processing, expanded effect clamping and tails, instrument metadata and event scheduling. Audio tests use a small `AudioBuffer` polyfill so the real processing code runs under Node.
 
 The CI workflow runs the same command on every push and pull request, plus a production build. A separate F-Droid workflow lints the `fdroiddata` recipe. Dependabot keeps npm and GitHub Actions dependencies current.
 
@@ -276,6 +288,7 @@ The CI workflow runs the same command on every push and pull request, plus a pro
 - [F-Droid compatibility and submission](docs/FDROID.md)
 - [Third-party licenses](THIRD_PARTY_LICENSES.md)
 - [Inspired by MTV Music Generator](docs/MUSIC-GENERATOR.md)
+- [Beat lab and FX rack](docs/BEAT-LAB.md)
 - [Project file format](docs/PROJECT_FORMAT.md)
 - [Development guide](docs/DEVELOPMENT.md)
 - [Deployment guide](docs/DEPLOYMENT.md)

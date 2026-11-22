@@ -3,6 +3,7 @@ import { useEditHistory } from "@/hooks/use-edit-history";
 import { coveringBlock, createDemoSong, newBlock, stepSeconds, type SampleAsset, type Song } from "@/lib/song";
 import { instrumentTrack, instrumentById } from "@/lib/instruments";
 import { fitRiffToTrack, type Riff } from "@/lib/riffs";
+import { drumTracks, type DrumPattern } from "@/lib/drum-machine";
 import { readSharedSong, saveAutosave } from "@/lib/project";
 import { toast } from "sonner";
 
@@ -52,6 +53,7 @@ function useStudioState() {
   const undoSamples = () => setSampleHistory(h => h.past.length ? { past: h.past.slice(0, -1), present: h.past[h.past.length - 1], future: [h.present, ...h.future] } : h);
   const redoSamples = () => setSampleHistory(h => h.future.length ? { past: [...h.past, h.present].slice(-6), present: h.future[0], future: h.future.slice(1) } : h);
   const addInstrument = (id: string) => {
+    if (history.song.tracks.length >= 32) { toast.error("The song already has 32 channels. Remove one before adding another."); return; }
     const index = history.song.tracks.length;
     history.edit(s => ({ ...s, tracks: [...s.tracks, instrumentTrack(id, s.barCount)] }));
     setSelectedTrack(index); setPreferredPattern(0);
@@ -69,6 +71,7 @@ function useStudioState() {
     setPreferredPattern(0);
   };
   const addSampleBlock = (sample: SampleAsset, destination: number) => {
+    if (history.song.tracks.length >= 32) { toast.error("The song already has 32 channels. Remove one before adding a sample channel."); return false; }
     const length = Math.max(1, Math.ceil(sample.buffer.duration / stepSeconds(history.song)));
     if (destination * 16 + length > 64 * 16) { toast.error("This sample exceeds the 64-bar timeline at the current speed. Trim it or slow the song first."); return false; }
     const count = Math.max(history.song.barCount, Math.ceil((destination * 16 + length) / 16));
@@ -79,6 +82,19 @@ function useStudioState() {
     history.edit(s => ({ ...s, barCount: count, tracks: [...s.tracks.map(t => ({ ...t, bars: [...t.bars, ...Array(count - s.barCount).fill(null)] })), track] }));
     setSelectedTrack(index); setSelectedBar(destination); setPreferredPattern(0);
     toast.success(`Sample added as a ${Math.ceil(length / 16)}-bar block.`);
+    return true;
+  };
+  const addDrumKit = (pattern: DrumPattern, bpm: number) => {
+    const tracks = drumTracks(pattern, { bar: selectedBar, barCount: history.song.barCount });
+    if (!tracks.length) return false;
+    if (history.song.tracks.length + tracks.length > 32) {
+      toast.error(`This kit needs ${tracks.length} channels, but the song already has ${history.song.tracks.length}. Remove a channel or clear some lanes first.`);
+      return false;
+    }
+    history.edit(s => ({ ...s, bpm: Math.round(Math.min(240, Math.max(40, bpm))), tracks: [...s.tracks, ...tracks] }));
+    setSelectedTrack(history.song.tracks.length);
+    setSelectedBar(selectedBar);
+    setPreferredPattern(0);
     return true;
   };
   const stampRiff = (riff: Riff) => {
@@ -102,7 +118,7 @@ function useStudioState() {
   return { ...history, selectedTrack, selectedBar, preferredPattern, setSelectedTrack, setSelectedBar, setPreferredPattern,
     samples: sampleHistory.present, audioSamples, addSamples, updateSample, undoSamples, redoSamples,
     canUndoSamples: sampleHistory.past.length > 0, canRedoSamples: sampleHistory.future.length > 0,
-    addInstrument, assignInstrument, addSampleBlock, loadSong, stampRiff };
+    addInstrument, assignInstrument, addSampleBlock, loadSong, stampRiff, addDrumKit };
 }
 type StudioState = ReturnType<typeof useStudioState>;
 const StudioContext = createContext<StudioState | null>(null);

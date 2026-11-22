@@ -4,12 +4,28 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [1.3.0] - 2026-11-21
+
 ### Added
+- **Beat lab**, an 18-lane × 16-step loop-station drum machine with four pattern banks, per-lane preview, BPM, swing, master level, copy, randomize and clear controls.
+- Drum lanes for kick, double bass, snare, snare roll, toms 1–3, closed hat, open hat, cymbal, ride, timpani, kettle bell, cowbell, clap 1, clap 2 and two user-configurable custom slots.
+- **Send to song** converts active Beat lab lanes into individual drum-kit channels at the selected bar, with undo support.
+- Expanded riff catalogue from 30 to 95 one-bar riffs, including modern trap, drill, house, techno, UK garage, dembow, hyperpop, synthwave, phonk, lo-fi, city pop, amapiano, trance, future bass and neo-soul phrases, plus retro game jingles and cinematic cues.
+- Riff name search alongside the category filters.
+- Expanded FX rack with drive, saturation, bit depth, acid filter envelope, filter LFO, phaser, flanger, tremolo, auto pan, ring modulation, compression, three-band EQ and a safety limiter.
+- FX presets for clean, crunch, acid 303, wide, dub, lo-fi, compression, space and destroy.
+- Eleven new instrument presets, bringing the library to 42, including arcade pulse, hyperpop lead, synthwave saw, phonk bass, lo-fi keys, snare roll, ride cymbal, timpani, kettle bell, double-bass kick and tight clap.
+- `docs/BEAT-LAB.md` with the lane reference, loop-station controls, send-to-song behavior, FX rack guide and code map.
 - `pnpm fdroid:lint` and an F-Droid metadata CI workflow that validate the `fdroiddata` recipe on every relevant change.
 - Full SIL Open Font License texts for Press Start 2P, Pixelify Sans and Nunito in `licenses/`, summarized in `THIRD_PARTY_LICENSES.md`.
 - F-Droid submission packet with the exact merge request title, label and body in `docs/FDROID.md`.
 
 ### Changed
+- The Pattern editor now exposes the full FX rack instead of separate reverb and delay sliders.
+- The workspace now has six modes: Song maker, Instruments, Sampler, Riffs, Beat lab and Projects.
+- Project files remain version 5; older files load the new FX fields with safe defaults.
 - F-Droid listing now points `WebSite` at the GitHub Pages build, uses the 75-character summary without a trailing period, and links the changelog through `/HEAD/` so it survives branch changes.
 - The F-Droid recipe README and contributor checklist document the local lint and clean-build verification.
 - The recipe installs OpenJDK 21 from Debian `trixie` and a SHA-256-verified Node.js 22.23.5 tarball; Capacitor 8 needs Node.js 22 or newer.

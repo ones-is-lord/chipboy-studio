@@ -34,9 +34,13 @@ const track = (overrides: Partial<Track> = {}): Track => ({
 
 describe("built-in riffs", () => {
   it("are unique, playable and use real presets", () => {
-    expect(builtinRiffs).toHaveLength(30);
+    expect(builtinRiffs.length).toBeGreaterThanOrEqual(90);
     expect(new Set(builtinRiffs.map(riff => riff.id)).size).toBe(builtinRiffs.length);
+    expect(new Set(builtinRiffs.map(riff => riff.name)).size).toBe(builtinRiffs.length);
     expect(builtinRiffs.every(riff => RIFF_CATEGORIES.includes(riff.category))).toBe(true);
+    expect(new Set(builtinRiffs.map(riff => riff.category))).toEqual(new Set(RIFF_CATEGORIES));
+    expect(builtinRiffs.filter(riff => riff.category === "Modern beats").length).toBeGreaterThanOrEqual(20);
+    expect(builtinRiffs.filter(riff => riff.category === "Retro game").length).toBeGreaterThanOrEqual(20);
     expect(builtinRiffs.every(riff => instruments.some(instrument => instrument.id === riff.preset))).toBe(true);
     expect(builtinRiffs.every(riff => riff.notes.length > 0 && riff.notes.every(note => note.start >= 0 && note.start < 16 && note.duration > 0 && note.start + note.duration <= 16))).toBe(true);
   });

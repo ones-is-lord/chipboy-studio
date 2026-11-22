@@ -9,7 +9,7 @@ native share, status bar, splash screen and haptics plugins.
 - Package name: `io.github.onesislord.chipboy`
 - Minimum SDK: 24 (Android 7.0)
 - Target SDK: 36 (Android 16)
-- Version: `1.2.0`, version code `2`
+- Version: `1.3.0`, version code `3`
 - Web assets: copied from `dist/` into `android/app/src/main/assets/public/`
 - Permissions: microphone (optional sampler recording), vibration (haptics)
   and audio settings. The APK requests no internet permission.
@@ -105,7 +105,7 @@ The release workflow runs the same check before uploading the APK.
 
 ### Sideload the APK
 
-1. Download `chipboy-studio-v1.2.0.apk` from the GitHub release.
+1. Download `chipboy-studio-v1.3.0.apk` from the GitHub release.
 2. Open the file on the Android device.
 3. Allow installs from the browser or file manager when Android asks.
 4. Open Chipboy Studio from the launcher.

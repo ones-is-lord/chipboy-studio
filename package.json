@@ -1,6 +1,6 @@
 {
   "name": "chipboy-studio",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "private": false,
   "type": "module",
   "scripts": {
@@ -68,7 +68,7 @@
     "vite-plugin-pwa": "2.0.0",
     "vitest": "^5.1.1"
   },
-  "description": "A pocket-sized chiptune studio in the browser: sequencer, piano roll, sampler, instruments and WAV export.",
+  "description": "A pocket-sized chiptune studio in the browser: sequencer, piano roll, drum machine, riff library, sampler, FX rack and WAV export.",
   "license": "MIT",
   "author": {
     "name": "Chipboy Studio contributors"

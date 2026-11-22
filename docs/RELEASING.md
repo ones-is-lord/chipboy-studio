@@ -47,9 +47,9 @@ The version lives in `package.json` and at the top of `CHANGELOG.md`. Project fi
 11. Tag and push:
 
    ```bash
-   git tag v1.2.0
+   git tag v1.3.0
    git push origin main
-   git push origin v1.2.0
+   git push origin v1.3.0
    ```
 
 ## What the tag triggers

@@ -1,15 +1,18 @@
 Chipboy Studio is a complete little chiptune workstation that fits in your pocket. It runs entirely on your device, with no account, no server and no uploads.
 
-Make music with a 16-step sequencer, a piano roll, 30 synth presets, a microphone sampler, a slicer, 16 performance pads and a riff palette. Arrange songs up to 64 bars, shape each channel with volume, pitch, pan, mute, solo, reverb and delay, then export a stereo 44.1 kHz / 16-bit WAV.
+Make music with a 16-step sequencer, a piano roll, 42 synth presets, an 18-lane loop-station drum machine, a microphone sampler, a slicer, 16 performance pads and a 95-riff palette. Arrange songs up to 64 bars, shape each channel with a 23-control FX rack, then export a stereo 44.1 kHz / 16-bit WAV.
 
 The Android app bundles every sound engine and every font. It works offline, including in airplane mode. Your projects are stored locally on the device. WAV and project files are handed to Android's share sheet so you can save them to Files, send them to another app, or keep them in cloud storage you already use.
 
 Features:
-- Five channels per song, two patterns per channel, 1 to 8 bar clips.
+- Up to 32 channels per song, two patterns per channel, 1 to 8 bar clips.
 - Step pads or piano roll with a five-octave keyboard.
-- 30 built-in synth presets and a microphone sampler.
+- 42 built-in synth presets and a microphone sampler.
 - Slice, trim, reverse, normalize, fade and pitch samples.
 - 16 pads, sample loop modes and a sample library.
+- Beat lab with 18 drum lanes, four pattern banks, BPM, swing, randomize and send-to-song.
+- 95 built-in riffs across modern beats, retro game music, cinematic cues, basslines, melodies, chords and FX.
+- FX rack with drive, distortion, bit depth, acid filter, modulation, delay, reverb, compression and three-band EQ.
 - Song arrangement with drag-to-move and drag-to-swap blocks.
 - Undo and redo across musical edits.
 - Local project slots, autosave and shareable song links.

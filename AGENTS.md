@@ -21,19 +21,23 @@ corepack pnpm fdroid:lint   # requires fdroidserver
 
 - `src/App.tsx` — base-path route check, error boundary, tooltip and toast providers.
 - `src/pages/` — `Index` and `NotFound`.
-- `src/components/WorkspaceLayout.tsx` — console shell and five mode tabs. Inactive tabs stay mounted with `hidden`.
+- `src/components/WorkspaceLayout.tsx` — console shell and six mode tabs. Inactive tabs stay mounted with `hidden`.
 - `src/components/StudioProvider.tsx` — single source of truth: song, selection, samples, playback.
 - `src/lib/song.ts` — plain song types and arrangement helpers.
 - `src/lib/project.ts` — Zod schemas, v5 file format, share links, `localStorage`.
-- `src/lib/riffs.ts` — built-in riff library, custom-riff storage and preview helpers.
+- `src/lib/riffs.ts` — 95-riff built-in library, custom-riff storage and preview helpers.
+- `src/lib/drum-machine.ts` — Beat lab lanes, pattern operations, persistence and song-track conversion.
 - `src/lib/audio-engine.ts` — live scheduling and offline render.
 - `src/lib/sample-processing.ts`, `wav.ts`, `effects.ts`, `instruments.ts` — pure domain modules.
+- `src/hooks/use-drum-machine.ts` — Web Audio look-ahead scheduler for the Beat lab.
 - `src/lib/native.ts` — the only file that imports Capacitor plugins. Exposes `initNativeShell`, `saveBlob`, `shareLink` and `tapHaptic` with web fallbacks.
 - `capacitor.config.ts` — Capacitor app ID, web dir, splash and status-bar colours.
 - `android/` — checked-in Capacitor Android project. `android/app/build.gradle` holds version and signing config.
 - `fdroid/` — fdroiddata recipe; `fastlane/metadata/android/` holds store listing files.
 - `licenses/` — full OFL texts for the bundled fonts; summary in `THIRD_PARTY_LICENSES.md`.
 - `src/components/RiffLibrary.tsx` — riff browsing, preview, stamping and capture.
+- `src/components/DrumMachine.tsx` — Beat lab grid and loop-station controls.
+- `src/components/EffectsRack.tsx` — per-channel FX controls and presets.
 - `src/test/setup.ts` — minimal `AudioBuffer` polyfill for Vitest.
 
 ## Rules that matter
@@ -41,6 +45,8 @@ corepack pnpm fdroid:lint   # requires fdroidserver
 - Never put `AudioBuffer` in the song or in project files. Use `sampleId`.
 - `stepSeconds(song)` is the only BPM-to-time conversion.
 - Live playback and WAV export must use the same scheduling path and per-channel effect buses.
+- Clamp every effect through `normalizeEffects` before it reaches an audio node.
+- Keep Beat lab patterns serializable; never put `AudioBuffer` objects in the drum-machine state.
 - Validate and normalize every imported project; reject files over 2 MB.
 - Keep the sampler and project data local. Do not add analytics or uploads.
 - Respect `prefers-reduced-motion`.

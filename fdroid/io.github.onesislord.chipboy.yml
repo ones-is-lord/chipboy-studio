@@ -10,9 +10,10 @@ Changelog: https://github.com/ones-is-lord/chipboy-studio/blob/HEAD/CHANGELOG.md
 AutoName: Chipboy Studio
 Description: |
   Chipboy Studio is a complete little chiptune workstation that runs entirely
-  on your device. It has a 16-step sequencer, a piano roll, 30 synth presets, a
-  microphone sampler, a slicer, 16 performance pads, a riff palette and stereo
-  WAV export.
+  on your device. It has a 16-step sequencer, a piano roll, 42 synth presets,
+  an 18-lane loop-station drum machine, a microphone sampler, a slicer, 16
+  performance pads, a 95-riff palette, an expanded FX rack and stereo WAV
+  export.
 
   The Android app bundles the whole studio. It works offline, stores projects
   locally and sends WAV and project files to Android's share sheet. There are no

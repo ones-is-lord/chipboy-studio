@@ -33,6 +33,7 @@ flowchart TB
     Instruments[InstrumentBrowser]
     Sampler[SampleRecorder + SampleWaveform]
     Riffs[RiffLibrary]
+    BeatLab[DrumMachine + EffectsRack]
     Projects[ProjectManager]
   end
 
@@ -48,6 +49,7 @@ flowchart TB
     InstrumentsLib[instruments.ts]
     Processing[sample-processing.ts]
     Effects[effects.ts]
+    DrumMachine[drum-machine.ts]
     Wav[wav.ts]
   end
 
@@ -62,10 +64,12 @@ flowchart TB
   Workspace --> Instruments
   Workspace --> Sampler
   Workspace --> Riffs
+  Workspace --> BeatLab
   Workspace --> Projects
   SongMaker --> Provider
   Instruments --> Provider
   Riffs --> Provider
+  BeatLab --> Provider
   Sampler --> Provider
   Projects --> Provider
   Provider --> History
@@ -74,6 +78,7 @@ flowchart TB
   Engine --> WebAudio
   Provider --> Song
   Provider --> RiffsLib[riffs.ts]
+  Provider --> DrumMachine
   Provider --> Project
   Sampler --> Processing
   Playback --> Effects
@@ -86,7 +91,7 @@ flowchart TB
 - `src/App.tsx` owns the error boundary, tooltip provider, toast host and the tiny base-path route check.
 - `src/pages/Index.tsx` renders the studio and sets the page title.
 - `src/pages/NotFound.tsx` is a friendly 404 that keeps the console look. It uses a plain anchor, so the app needs no router dependency.
-- `src/components/WorkspaceLayout.tsx` is the hardware shell: brand, status strip, five mode tabs, transport and footer. Inactive modes stay mounted with `hidden` so audio state, unsaved edits and scroll positions survive tab changes.
+- `src/components/WorkspaceLayout.tsx` is the hardware shell: brand, status strip, six mode tabs, transport and footer. Inactive modes stay mounted with `hidden` so audio state, unsaved edits and scroll positions survive tab changes.
 - `src/components/ErrorBoundary.tsx` catches render errors and offers a reload instead of a blank screen.
 
 ### State
@@ -109,10 +114,11 @@ The song object is intentionally plain data: strings, numbers, arrays and boolea
 
 - `src/lib/song.ts` — song, track, block and note types plus timing and arrangement helpers. No React, no Web Audio.
 - `src/lib/project.ts` — Zod schemas, normalization, versioned file parsing, share-link encoding and `localStorage` access. No React.
-- `src/lib/instruments.ts` — the 30 preset definitions, channel factory and category colours.
-- `src/lib/riffs.ts` — the built-in riff library, custom-riff storage, preview-track factory and octave fitting.
+- `src/lib/instruments.ts` — the 42 preset definitions, channel factory and category colours.
+- `src/lib/riffs.ts` — the 95-riff built-in library, custom-riff storage, preview-track factory and octave fitting.
+- `src/lib/drum-machine.ts` — Beat lab lanes, pattern operations, persistence and conversion to song tracks.
 - `src/lib/sample-processing.ts` — crop, normalize, reverse, fade, gain, slice points and pitch-preserving stretch.
-- `src/lib/effects.ts` — effect defaults, tail calculation and the shared delay/reverb bus.
+- `src/lib/effects.ts` — effect defaults, normalization, tail calculation and the shared effect bus.
 - `src/lib/wav.ts` — RIFF/WAVE encoding, blob download and filename sanitizing.
 - `src/lib/audio-engine.ts` — voice scheduling, event generation and offline rendering.
 
@@ -122,16 +128,18 @@ Pure modules are unit-tested without a browser. Tests that need audio use a mini
 
 ```mermaid
 flowchart LR
-  Track[Channel gain + pan] --> Dry[Dry gain]
-  Track --> Delay[Delay send]
-  Track --> Reverb[Reverb send]
-  Dry --> Master[Master gain]
-  Delay --> Master
-  Reverb --> Master
-  Master --> Destination[ctx.destination]
+  Voice[Voice scheduler] --> EQ[3-band EQ]
+  EQ --> Filter[Filter + LFO]
+  Filter --> Drive[Drive / bit depth]
+  Drive --> Mod[Chorus / flanger / phaser / tremolo / pan / ring]
+  Mod --> Delay[Delay send]
+  Delay --> Reverb[Reverb send]
+  Reverb --> Comp[Compression]
+  Comp --> Limit[Safety limiter]
+  Limit --> Destination[ctx.destination]
 ```
 
-`createEffectsBus` builds one bus per channel for each playback or render. Each scheduled voice connects to its channel bus. Live playback builds these buses when play starts, so reverb and delay sends are audible during playback and in WAV export. Pan is applied per voice with a `StereoPannerNode`, so pan changes take effect on the next scheduled note.
+`createEffectsBus` builds one bus per channel for each playback or render. Each scheduled voice connects to its channel bus. Live playback builds these buses when play starts, so the rack is audible during playback and in WAV export. Pan is applied per voice with a `StereoPannerNode`, so pan changes take effect on the next scheduled note. The final limiter is always present, even when effects are off, to protect the destination from clipping.
 
 ### Live playback
 
@@ -142,6 +150,10 @@ The transport position is derived from `ctx.currentTime` and the song's `stepSec
 ### WAV export
 
 `renderSong` uses an `OfflineAudioContext` with the same scheduling function and effect bus. Rendering is capped at five minutes to keep memory bounded. `wavBytes` writes a stereo 16-bit PCM file without normalizing quiet material upward; clipping samples are attenuated instead.
+
+### Beat lab playback
+
+`useDrumMachine` owns a separate `AudioContext` and a single preview bus. Its scheduler uses the same 120 ms look-ahead pattern as song playback, reads BPM and swing from a live ref, and calls `scheduleVoice` with a temporary drum track per hit. The preview bus is disposed when the workspace closes or playback stops.
 
 ### Sample voices
 
@@ -169,6 +181,7 @@ Storage keys:
 - `chipboy-studio.projects.v1` — saved slots (maximum 30).
 - `chipboy-studio.autosave.v1` — the latest autosave.
 - `chipboy-studio.riffs.v1` — custom riffs (maximum 40).
+- `chipboy-studio.drum-machine.v1` — Beat lab banks, BPM, swing, loop, master and active bank.
 
 Every read is validated and normalized. A corrupt slot is skipped, not fatal. `localStorage` quota errors surface as a readable message.
 
@@ -203,5 +216,6 @@ Every read is validated and normalized. A corrupt slot is skipped, not fatal. `l
 - Add a preset in `src/lib/instruments.ts`; it appears in the browser, the riff library and the audio engine automatically.
 - Add a built-in riff in `src/lib/riffs.ts`; it appears in the Riffs workspace without a schema change.
 - Add a project field in `src/lib/project.ts` with a schema default and a normalization rule, then bump `PROJECT_VERSION` only for breaking changes.
-- Add an effect in `src/lib/effects.ts` and wire it into `createEffectsBus`.
+- Add an effect in `src/lib/effects.ts`, extend `normalizeEffects`, wire it into `createEffectsBus`, and add a control group in `EffectsRack.tsx`.
+- Add a Beat lab lane in `src/lib/drum-machine.ts`; the grid, persistence and send-to-song conversion pick it up automatically.
 - Add a workspace mode in `WorkspaceLayout.tsx` and a panel component; keep inactive panels mounted if they own audio state.

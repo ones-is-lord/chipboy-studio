@@ -1,0 +1,9 @@
+Chipboy Studio 1.3.0
+
+- New Beat lab: an 18-lane, 16-step drum machine with four pattern banks, BPM, swing, randomize and send-to-song.
+- New lanes for double bass, snare roll, toms, hats, cymbals, timpani, kettle bell, cowbell, clap 1 and clap 2.
+- Riff catalogue expanded from 30 to 95, with modern beats, retro game jingles and cinematic cues.
+- Riff name search alongside category filters.
+- Expanded FX rack with drive, distortion, bit depth, acid filter, modulation, delay, reverb, compression and three-band EQ.
+- Eleven new instrument presets, bringing the library to 42.
+- Documentation for Beat lab, the FX rack and the expanded project format.

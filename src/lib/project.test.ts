@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { createDemoSong } from "./song";
+import { defaultEffects } from "./effects";
 import {
   buildShareUrl,
   decodeShareSong,
@@ -87,6 +88,23 @@ describe("project normalization", () => {
     const { song, warnings } = normalizeSong(raw);
     expect(warnings.some(warning => warning.includes("overlapping"))).toBe(true);
     expect(song.tracks[0].bars[1]).toBeNull();
+  });
+
+  it("round-trips and clamps the expanded effects rack", () => {
+    const source = createDemoSong();
+    source.tracks[0].effects = { ...defaultEffects(), drive: 0.4, acid: 0.6, phaser: 0.3, compression: 0.7, low: 3, high: -2 };
+    const parsed = parseProjectJson(serializeProject(source)).song;
+    expect(parsed.tracks[0].effects?.drive).toBe(0.4);
+    expect(parsed.tracks[0].effects?.acid).toBe(0.6);
+    expect(parsed.tracks[0].effects?.phaser).toBe(0.3);
+    expect(parsed.tracks[0].effects?.compression).toBe(0.7);
+    expect(parsed.tracks[0].effects?.low).toBe(3);
+    const raw = { ...source, tracks: [{ ...source.tracks[0], effects: { ...source.tracks[0].effects, cutoff: 1, feedback: 99, acid: 9, low: -99 } }] };
+    const normalized = normalizeSong(raw).song;
+    expect(normalized.tracks[0].effects?.cutoff).toBe(60);
+    expect(normalized.tracks[0].effects?.feedback).toBe(0.9);
+    expect(normalized.tracks[0].effects?.acid).toBe(1);
+    expect(normalized.tracks[0].effects?.low).toBe(-12);
   });
 
   it("rejects data that is not a song", () => {

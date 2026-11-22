@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Download, Play, Plus, Sparkles, Trash2 } from "lucide-react";
+import { Download, Play, Plus, Search, Sparkles, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useStudio } from "./StudioProvider";
 import { useSongPlayback } from "@/hooks/use-song-playback";
@@ -17,6 +17,7 @@ export function RiffLibrary({ active }: { active: boolean }) {
   const audio = useSongPlayback(studio.song, active, studio.audioSamples);
   const [custom, setCustom] = useState<Riff[]>(() => loadCustomRiffs());
   const [filter, setFilter] = useState<Filter>("All");
+  const [search, setSearch] = useState("");
   const [name, setName] = useState("");
   const [captureCategory, setCaptureCategory] = useState<RiffCategory>("Melodies");
 
@@ -24,7 +25,7 @@ export function RiffLibrary({ active }: { active: boolean }) {
   const cover = coveringBlock(track, studio.selectedBar);
   const patternIndex = cover?.block.pattern ?? Math.min(studio.preferredPattern, track.patterns.length - 1);
   const notes = track.patterns[patternIndex] ?? [];
-  const riffs = useMemo(() => allRiffs(custom).filter(riff => filter === "All" || riff.category === filter), [custom, filter]);
+  const riffs = useMemo(() => allRiffs(custom).filter(riff => (filter === "All" || riff.category === filter) && `${riff.name} ${riff.preset} ${riff.category}`.toLowerCase().includes(search.trim().toLowerCase())), [custom, filter, search]);
   const customCount = custom.length;
 
   const preview = (riff: Riff) => void audio.previewSequence(riffTrack(riff, studio.song.barCount), riff.notes);
@@ -67,10 +68,13 @@ export function RiffLibrary({ active }: { active: boolean }) {
         <div className="flex items-center gap-2"><PixelArt type="note" className="h-7 w-7" /><span className="bezel-label text-[8px]">1 BAR · 16 STEPS</span></div>
       </div>
 
-      <div className="mb-3 flex flex-wrap gap-2" role="group" aria-label="Filter riffs by category">
-        {(["All", ...RIFF_CATEGORIES] as const).map(value => (
-          <button key={value} onClick={() => setFilter(value)} aria-pressed={filter === value} className={cn("console-tab rounded-md px-3 py-2 text-[9px] font-bold uppercase", filter === value && "selected")}>{value}</button>
-        ))}
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter riffs by category">
+          {(["All", ...RIFF_CATEGORIES] as const).map(value => (
+            <button key={value} onClick={() => setFilter(value)} aria-pressed={filter === value} className={cn("console-tab rounded-md px-3 py-2 text-[9px] font-bold uppercase", filter === value && "selected")}>{value}</button>
+          ))}
+        </div>
+        <label className="ml-auto flex items-center gap-2 rounded-lg border bg-[var(--case-light)] px-3 py-2"><Search size={14} /><input aria-label="Search riffs" value={search} onChange={event => setSearch(event.target.value)} placeholder="Find a riff…" className="w-36 bg-transparent text-[10px] outline-none" /></label>
       </div>
 
       <div className="game-screen rounded-md p-3 sm:p-4">

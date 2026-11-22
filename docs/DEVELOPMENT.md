@@ -115,7 +115,7 @@ ESLint covers TypeScript, React hooks and fast refresh. There is no separate for
 src/
   components/        UI, one concern per file
   components/ui/     shadcn/ui primitives kept by the app
-  hooks/             playback and undo history
+  hooks/             playback, undo history and Beat lab scheduler
   lib/               pure domain modules and their tests
   pages/             route components
   test/              Vitest setup and audio fixtures
@@ -168,6 +168,26 @@ The in-app sprites live in `src/components/PixelArt.tsx`. They are plain SVG rec
 2. Give it a unique `id`, a category, a `voice` and synth parameters.
 3. Run `pnpm test`. The instrument test checks unique IDs and valid voices.
 4. Preview it in the Instruments tab. The waveform drawing uses the same parameters as the engine.
+
+## Adding a Beat lab lane
+
+1. Add a `DrumRow` to `DRUM_ROWS` in `src/lib/drum-machine.ts`.
+2. Give it a unique `id`, a preset ID that exists in `src/lib/instruments.ts`, a MIDI root and a default volume.
+3. Run `pnpm test`. The drum-machine tests check lane count and uniqueness.
+4. Open **Beat lab** and verify the lane preview, grid toggle and **Send to song** conversion.
+
+The grid, persistence and song conversion derive from `DRUM_ROWS`, so no component changes are needed for a normal lane.
+
+## Adding an effect
+
+1. Add a normalized numeric field to `Effects` and `defaultEffects()` in `src/lib/effects.ts`.
+2. Clamp it in `normalizeEffects`.
+3. Wire the node into `createEffectsBus`, and add a per-note envelope in `audio-engine.ts` if the effect needs note-level timing.
+4. Add a control to `src/components/EffectsRack.tsx`.
+5. Add the field to the effects schema and normalization in `src/lib/project.ts`.
+6. Update `docs/PROJECT_FORMAT.md`, `docs/BEAT-LAB.md` and the effects tests.
+
+Keep the final safety limiter in the bus. Do not route a new wet path directly to `ctx.destination`.
 
 ## Adding a project field
 

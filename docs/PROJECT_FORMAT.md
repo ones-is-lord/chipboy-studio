@@ -83,10 +83,27 @@ A song must contain 1–32 tracks.
     "enabled": true,
     "cutoff": 20000,
     "resonance": 0.7,
+    "distortion": 0,
+    "drive": 0,
+    "saturation": 0,
+    "bits": 16,
+    "acid": 0,
+    "filterLfo": 0,
+    "filterRate": 0.5,
+    "chorus": 0,
+    "phaser": 0,
+    "flanger": 0,
+    "tremolo": 0,
+    "autoPan": 0,
+    "ringMod": 0,
     "reverb": 0,
     "delay": 0,
     "delayBeats": 0.75,
-    "feedback": 0.35
+    "feedback": 0.35,
+    "compression": 0,
+    "low": 0,
+    "mid": 0,
+    "high": 0
   },
   "patterns": [[], []],
   "bars": [null]
@@ -109,6 +126,37 @@ A song must contain 1–32 tracks.
 | `sampleId` | string | absent | Required for `voice: "sample"` to make sound. |
 | `patterns` | array of note arrays | `[[], []]` | Up to 64 patterns, each up to 512 notes. |
 | `bars` | array of blocks or null | all null | Exactly `barCount` entries after normalization. |
+
+### Effects
+
+Every effect field is optional. Missing fields use the defaults below, so v5 projects written before the expanded rack still load correctly.
+
+| Field | Default | Range | Notes |
+| --- | --- | --- | --- |
+| `enabled` | `true` | — | Turns the rack on or off. The safety limiter remains active. |
+| `cutoff` | `20000` | 60–20000 Hz | Low-pass cutoff. |
+| `resonance` | `0.7` | 0.1–24 | Filter Q. |
+| `distortion` | `0` | 0–1 | Waveshaper drive. |
+| `drive` | `0` | 0–1 | Additional pre-gain. |
+| `saturation` | `0` | 0–1 | Soft saturation. |
+| `bits` | `16` | 1–16 | Bit depth for quantized crushing. |
+| `acid` | `0` | 0–1 | Per-note resonant filter envelope. |
+| `filterLfo` | `0` | 0–1 | Filter LFO depth. |
+| `filterRate` | `0.5` | 0.05–8 Hz | Filter LFO rate. |
+| `chorus` | `0` | 0–1 | Chorus mix. |
+| `phaser` | `0` | 0–1 | Four-stage all-pass phaser. |
+| `flanger` | `0` | 0–1 | Modulated short delay. |
+| `tremolo` | `0` | 0–1 | Amplitude modulation. |
+| `autoPan` | `0` | 0–1 | Stereo pan modulation. |
+| `ringMod` | `0` | 0–1 | Ring modulation mix. |
+| `reverb` | `0` | 0–1 | Convolution reverb mix. |
+| `delay` | `0` | 0–1 | Delay send. |
+| `delayBeats` | `0.75` | 0.05–4 beats | Delay time. |
+| `feedback` | `0.35` | 0–0.9 | Delay feedback. |
+| `compression` | `0` | 0–1 | Bus compression. |
+| `low` | `0` | −12 to +12 dB | Low shelf. |
+| `mid` | `0` | −12 to +12 dB | Mid peak. |
+| `high` | `0` | −12 to +12 dB | High shelf. |
 
 ### Note
 

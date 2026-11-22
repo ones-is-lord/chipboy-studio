@@ -1,7 +1,7 @@
 {
   "name": "Chipboy Studio",
   "short_name": "Chipboy",
-  "description": "A pocket-sized chiptune studio: sequencer, piano roll, sampler, slicer and WAV export.",
+  "description": "A pocket-sized chiptune studio: sequencer, piano roll, drum machine, riff library, sampler, FX rack and WAV export.",
   "id": ".",
   "start_url": ".",
   "scope": ".",

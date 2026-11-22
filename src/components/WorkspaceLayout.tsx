@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { FolderOpen, Grid2X2, Mic, Music2, Waves } from "lucide-react";
+import { Drum, FolderOpen, Grid2X2, Mic, Music2, Waves } from "lucide-react";
 import { SampleRecorder } from "./SampleRecorder";
 import { ProjectManager } from "./ProjectManager";
 import { InstrumentBrowser } from "./InstrumentBrowser";
 import { StudioProvider } from "./StudioProvider";
 import { MusicGenerator } from "./MusicGenerator";
 import { RiffLibrary } from "./RiffLibrary";
+import { DrumMachine } from "./DrumMachine";
 import { AnimatedSprite, PixelArt, PixelEqualizer } from "./PixelArt";
 import { tapHaptic } from "@/lib/native";
 import { cn } from "@/lib/utils";
@@ -15,6 +16,7 @@ const modes = [
   { id: "sounds", label: "Instruments", icon: Waves },
   { id: "samples", label: "Sampler", icon: Mic },
   { id: "riffs", label: "Riffs", icon: Music2 },
+  { id: "beat", label: "Beat lab", icon: Drum },
   { id: "projects", label: "Projects", icon: FolderOpen },
 ] as const;
 
@@ -53,7 +55,7 @@ const StudioWorkspace = () => {
             </div>
           </div>
 
-          <nav className="console-nav mb-5 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-5" aria-label="Studio workspaces">
+          <nav className="console-nav mb-5 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-6" aria-label="Studio workspaces">
             {modes.map(({ id, label, icon: Icon }, index) => (
               <button key={id} onClick={() => { void tapHaptic(); setMode(id); }} aria-pressed={mode === id} className={cn("console-tab flex min-h-14 items-center justify-center gap-2 rounded-lg px-2 py-3 sm:justify-start sm:px-2 lg:px-5", mode === id && "selected")}>
                 <Icon size={18} strokeWidth={2.4} className="hidden lg:block" />
@@ -66,6 +68,7 @@ const StudioWorkspace = () => {
           <div className={cn("tab-panel", mode === "sounds" && "animate-tab-in")} hidden={mode !== "sounds"}><InstrumentBrowser active={mode === "sounds"} onOpenSong={() => setMode("song")} /></div>
           <div className={cn("tab-panel", mode === "samples" && "animate-tab-in")} hidden={mode !== "samples"}><SampleRecorder active={mode === "samples"} onOpenSong={() => setMode("song")} /></div>
           <div className={cn("tab-panel", mode === "riffs" && "animate-tab-in")} hidden={mode !== "riffs"}><RiffLibrary active={mode === "riffs"} /></div>
+          <div className={cn("tab-panel", mode === "beat" && "animate-tab-in")} hidden={mode !== "beat"}><DrumMachine active={mode === "beat"} /></div>
           <div className={cn("tab-panel legacy-workspace", mode === "projects" && "animate-tab-in")} hidden={mode !== "projects"}><ProjectManager /></div>
 
           <footer className="mt-6 flex items-center justify-between gap-4 px-2 pb-2">

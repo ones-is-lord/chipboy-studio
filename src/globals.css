@@ -302,6 +302,33 @@
   .bezel-label { letter-spacing: .09em; font-size: 8px; }
 }
 
+/* ---------- Beat Lab drum grid ---------- */
+.drum-grid { display: grid; grid-template-columns: 142px repeat(16, minmax(24px, 1fr)); gap: 3px; min-width: 760px; align-items: stretch; }
+.drum-corner { display: flex; align-items: center; padding: 0 6px; color: var(--lcd-dark); font-size: 8px; font-weight: 900; letter-spacing: .12em; }
+.drum-column-head { display: flex; align-items: center; justify-content: center; min-height: 20px; color: #50643c; font-family: 'Press Start 2P', monospace; font-size: 7px; border-bottom: 1px solid #8fa662; }
+.drum-column-head.accent { color: var(--berry); }
+.drum-column-head.current { color: #fff3e7; background: var(--berry); border-radius: 3px; }
+.drum-lane { display: flex; align-items: center; gap: 5px; min-width: 0; padding: 2px 4px; border: 1px solid #a7b883; border-radius: 5px; background: #cbd6a8; }
+.drum-preview { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 22px; width: 22px; height: 22px; color: #526b3b; border: 1px solid #9eb27a; border-radius: 4px; background: #e4eccb; box-shadow: inset 0 1px 0 #f7fbe9, 0 1px 0 #9eb27a; }
+.drum-preview:hover { background: #f2f7df; }
+.drum-lane-name { display: block; overflow: hidden; color: #344a27; font-size: 9px; font-weight: 900; line-height: 1.1; text-overflow: ellipsis; white-space: nowrap; }
+.drum-lane-sound { display: block; overflow: hidden; color: #63784b; font-size: 7px; font-weight: 700; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
+.drum-preset-select { display: block; width: 100%; max-width: 100px; margin-top: 1px; padding: 1px 2px; color: #344a27; font-size: 7px; border: 1px solid #9eb27a; border-radius: 3px; background: #e4eccb; }
+.drum-pad { display: flex; align-items: center; justify-content: center; min-height: 30px; border: 1px solid #aab69a; border-radius: 4px; background-color: #d5ddc6; background-image: linear-gradient(180deg, rgba(255,255,255,.34), transparent 55%, rgba(52,59,49,.05)); box-shadow: inset 1px 2px 0 #eef3e1, inset -1px -2px 0 #c1caae, 0 2px 0 #a5b18e; transition: transform 70ms, background 70ms, box-shadow 70ms; }
+.drum-pad:hover { background-color: #e4ecd2; }
+.drum-pad.on { background-color: #829664; background-image: linear-gradient(180deg, rgba(255,255,255,.18), transparent 55%, rgba(30,45,20,.14)); border-color: #647d4b; box-shadow: inset 1px 2px 0 #a7b987, inset -1px -2px 0 #6c8354, 0 2px 0 #536b42; }
+.drum-pad.current { outline: 2px solid var(--berry); outline-offset: 1px; }
+.drum-pad.downbeat { border-left: 2px solid #9eb27a; }
+.drum-led { width: 6px; height: 14px; border-radius: 1px; background: #b4bfa0; box-shadow: inset 1px 1px 0 #9da98b; }
+.drum-pad.on .drum-led { background: #e8f4bc; box-shadow: 0 0 5px #e8f4bc66; }
+.drum-pad:active { transform: translateY(2px); }
+@media (max-width: 640px) {
+  .drum-grid { grid-template-columns: 118px repeat(16, minmax(22px, 1fr)); min-width: 680px; }
+  .drum-lane { padding: 2px; }
+  .drum-preview { flex-basis: 18px; width: 18px; height: 18px; }
+  .drum-lane-name { font-size: 8px; }
+}
+
 /* ---------- Pixel motion system ---------- */
 .pixel-equalizer { display: inline-flex; align-items: flex-end; gap: 2px; height: 16px; }
 .pixel-equalizer i { display: block; width: 3px; height: 100%; border-radius: 1px; background: #658342; box-shadow: 0 0 0 1px #65834222; transform-origin: bottom; animation: equalize 760ms ease-in-out infinite alternate; }
