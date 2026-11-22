@@ -20,12 +20,16 @@ the ready-to-copy recipe.
 | `fdroiddata` recipe | Ready |
 | `fdroid lint` | Clean with `fdroidserver` 2.4.5 |
 | Clean build from the `v1.2.0` tag | Pass; unsigned 1.2.0 APK produced |
-| GitLab account and `fdroiddata` fork | Needed |
-| Merge request to `fdroid/fdroiddata` | Not opened |
+| GitLab account and `fdroiddata` fork | Ready: `ones-is-lord/fdroiddata` |
+| Merge request to `fdroid/fdroiddata` | Opened: [!58500](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/58500) |
+| `fdroiddata` CI | Pass: lint, rewritemeta, tools, build and `check apk` |
 
-The repository does not contain GitLab credentials, so the merge request itself
-must be opened by the account owner. Everything before that step is prepared and
-tested. See [Submit to F-Droid](#submit-to-f-droid) for the exact request.
+The merge request is open at
+[`fdroid/fdroiddata!58500`](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/58500).
+The fork is at [`ones-is-lord/fdroiddata`](https://gitlab.com/ones-is-lord/fdroiddata).
+The repository does not store GitLab credentials. See
+[Submit to F-Droid](#submit-to-f-droid) for the exact request and the update
+workflow.
 
 ## Compatibility checklist
 
@@ -172,24 +176,29 @@ repository root.
 subdir: android
 sudo:
   - apt-get update
-  - apt-get install -y -t trixie openjdk-21-jdk-headless
-  - apt-get install -y -t trixie nodejs npm
+  - apt-get install -y -t trixie openjdk-21-jdk-headless curl
+  - curl -fsSLo /tmp/node.tar.gz https://nodejs.org/dist/v22.23.5/node-v22.23.5-linux-x64.tar.gz
+  - echo "c54118104acc524633b5abe106bbf44a53126ec8b4e5fa105cb92b5d7de8a1a1  /tmp/node.tar.gz" | sha256sum -c -
+  - tar -xzf /tmp/node.tar.gz --strip-components=1 -C /usr/local
   - npm install -g pnpm@12.21.0
-init:
-  - pnpm --dir .. install --frozen-lockfile
+init: pnpm --dir .. install --frozen-lockfile
 prebuild:
   - pnpm --dir .. build
   - pnpm --dir .. exec cap sync android
 gradle:
-  - assembleRelease
+  - yes
 ```
 
 The build produces `app/build/outputs/apk/release/app-release-unsigned.apk`.
 F-Droid signs it with the F-Droid key, so do not upload the GitHub release APK
 as the F-Droid artifact.
 
-The `scanignore` entries keep the scanner out of `node_modules` and `dist`,
-which are generated during `init` and `prebuild`.
+The `scanignore` entry keeps the scanner out of `node_modules`, which is
+generated during `init`.
+
+The F-Droid summary lives in
+`metadata/io.github.onesislord.chipboy/en-US/summary.txt`, not in the YAML.
+`fdroiddata`'s `make-summary-translatable.py` check rejects a `Summary:` key.
 
 The app bundles three OFL fonts through Fontsource. The complete licence texts
 are in [`licenses/`](../licenses/) and summarized in
@@ -197,10 +206,11 @@ are in [`licenses/`](../licenses/) and summarized in
 
 ## Buildserver notes
 
-The recipe installs OpenJDK 21 and Node.js from Debian `trixie` with `sudo`.
-F-Droid's buildserver must provide Node.js 20.19 or newer for Vite 8 and pnpm
-12; `trixie`'s Node.js satisfies that, so the recipe does not depend on the
-image's default Node.js or on a NodeSource pipe.
+The recipe installs OpenJDK 21 from Debian `trixie` with `sudo`. Capacitor 8
+requires Node.js 22 or newer, but `trixie` ships Node.js 20 and the buildserver
+does not expose `forky`. The recipe downloads the official Node.js 22.23.5
+Linux x64 tarball, verifies its SHA-256, and extracts it into `/usr/local`. This
+avoids both the image's default Node.js and a NodeSource pipe.
 
 `npm install -g pnpm` runs as root so the binary lands in `/usr/local/bin` and
 is on the build user's `PATH`. Check the current buildserver image before
