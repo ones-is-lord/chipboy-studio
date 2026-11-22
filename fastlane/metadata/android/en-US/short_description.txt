@@ -1,1 +1,1 @@
-Pocket-sized chiptune studio: sequencer, piano roll, sampler and WAV export.
+Pocket-sized chiptune studio: sequencer, piano roll, sampler and WAV export
