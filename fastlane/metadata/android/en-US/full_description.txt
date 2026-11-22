@@ -12,12 +12,13 @@ Features:
 - 16 pads, sample loop modes and a sample library.
 - Beat lab with 18 drum lanes, four pattern banks, BPM, swing, randomize and send-to-song.
 - 95 built-in riffs across modern beats, retro game music, cinematic cues, basslines, melodies, chords and FX.
+- Optional CC0 game-audio browser: download MIDI riffs, fanfares, 16-bit loops and retro SFX from credited public repositories.
 - FX rack with drive, distortion, bit depth, acid filter, modulation, delay, reverb, compression and three-band EQ.
 - Song arrangement with drag-to-move and drag-to-swap blocks.
 - Undo and redo across musical edits.
 - Local project slots, autosave and shareable song links.
 - Stereo WAV export up to five minutes.
 - Pixel-art interface, animated sprites and a Nintendo-inspired pixel font.
-- No analytics, no ads, no tracking and no network dependency.
+- No analytics, no ads and no tracking. The core studio is fully offline; only the optional free-pack downloader uses the network.
 
 Chipboy Studio is free and open source under the MIT licence. The source code, issue tracker and build instructions are on GitHub.

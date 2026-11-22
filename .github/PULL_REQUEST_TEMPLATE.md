@@ -27,6 +27,7 @@
 - [ ] `pnpm check` passes locally.
 - [ ] Android changes build with `pnpm android:debug` and pass `pnpm android:lint`.
 - [ ] New behavior has tests, or this pull request explains why it cannot be unit-tested.
+- [ ] `pnpm free-packs:check` passes when the free-pack catalogue changes.
 - [ ] Documentation is updated when public behavior, project format or deployment changes.
 - [ ] UI changes include screenshots and work with `prefers-reduced-motion`.
 - [ ] Android changes include a device or emulator check, including offline behavior when relevant.

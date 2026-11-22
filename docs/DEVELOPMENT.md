@@ -87,6 +87,14 @@ pnpm check
 
 CI runs `pnpm check` on every push and pull request. A pull request should not be merged with a failing check.
 
+When you add or change a free-pack download, also run the live URL check:
+
+```bash
+pnpm free-packs:check
+```
+
+It needs network access and is intentionally separate from `pnpm check` so CI stays deterministic. See [FREE-PACKS.md](FREE-PACKS.md).
+
 ### Tests
 
 Vitest runs in Node. There is no DOM test runner by default; component behavior is verified in a real browser. The audio tests use a tiny `AudioBuffer` polyfill in `src/test/setup.ts`, so the real processing functions execute instead of mocks.

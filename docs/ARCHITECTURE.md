@@ -1,6 +1,6 @@
 # Architecture
 
-Chipboy Studio is a static single-page application. There is no backend, no authentication and no network request after the bundle loads. Everything runs on the user's device.
+Chipboy Studio is a static single-page application. There is no backend and no authentication. Everything runs on the user's device. The only network request is the optional, user-initiated free-pack download; the core studio never contacts a server.
 
 ## Shells
 
@@ -20,7 +20,7 @@ The Android build flow is:
 src/ -> vite build -> dist/ -> cap sync android -> android/app/src/main/assets/public/ -> Gradle -> APK
 ```
 
-The APK does not use the service worker or the network. It loads the bundled assets from Capacitor's local WebView origin.
+The APK does not use the service worker. It loads the bundled assets from Capacitor's local WebView origin. The optional free-pack browser uses HTTPS and the Android `INTERNET` permission only when the user taps Add or Preview.
 
 ## Layers
 
@@ -33,6 +33,7 @@ flowchart TB
     Instruments[InstrumentBrowser]
     Sampler[SampleRecorder + SampleWaveform]
     Riffs[RiffLibrary]
+    FreePacks[FreePackBrowser]
     BeatLab[DrumMachine + EffectsRack]
     Projects[ProjectManager]
   end
@@ -50,6 +51,8 @@ flowchart TB
     Processing[sample-processing.ts]
     Effects[effects.ts]
     DrumMachine[drum-machine.ts]
+    FreePackData[free-packs.ts]
+    Midi[midi.ts]
     Wav[wav.ts]
   end
 
@@ -64,6 +67,9 @@ flowchart TB
   Workspace --> Instruments
   Workspace --> Sampler
   Workspace --> Riffs
+  Riffs --> FreePacks
+  FreePacks --> FreePackData
+  FreePacks --> Midi
   Workspace --> BeatLab
   Workspace --> Projects
   SongMaker --> Provider

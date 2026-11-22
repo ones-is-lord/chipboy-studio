@@ -20,6 +20,7 @@ the ready-to-copy recipe.
 | `fdroiddata` recipe | Ready |
 | `fdroid lint` | Clean with `fdroidserver` 2.4.5 |
 | Clean build from the `v1.2.0` tag | Pass; unsigned 1.2.0 APK produced |
+| `v1.3.0` recipe entry | Ready (`versionCode 3`); clean build runs after tagging `v1.3.0` |
 | GitLab account and `fdroiddata` fork | Ready: `ones-is-lord/fdroiddata` |
 | Merge request to `fdroid/fdroiddata` | Opened: [!58500](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/58500) |
 | `fdroiddata` CI | Pass: lint, rewritemeta, tools, build and `check apk` |
@@ -40,19 +41,22 @@ workflow.
 | No proprietary dependencies | React, Capacitor, Radix UI, Tailwind and Lucide are open source |
 | No Google Play Services | Not used |
 | No tracking, ads or analytics | None |
-| Works without a network | Yes; all assets are bundled |
+| Works without a network | Yes for the core studio; only the optional free-pack downloader uses the network |
 | No anti-features | None |
 | Buildable from source | `pnpm install --frozen-lockfile`, `pnpm build`, `cap sync android`, Gradle |
 | Reproducible dependency graph | `pnpm-lock.yaml` is committed |
 | Fastlane metadata | `fastlane/metadata/android/en-US/` |
 | Font licences | Full OFL texts in `licenses/`, summary in `THIRD_PARTY_LICENSES.md` |
 | Signed by F-Droid | The recipe builds an unsigned release APK; F-Droid signs it |
-| Version code increases | `2` for `1.2.0`; bump for every release |
+| Version code increases | `3` for `1.3.0`; bump for every release |
 
-The app requests microphone, vibration and audio-settings permissions. It does
-not request internet permission. Microphone is optional and only used when the
-user taps Record. Vibration is used for light haptic feedback. Android backup is
-disabled, so projects stay on the device unless the user exports or shares them.
+The app requests microphone, vibration, audio-settings and internet
+permissions. Microphone is optional and only used when the user taps Record.
+Vibration is used for light haptic feedback. Internet is used only by the
+optional free-pack browser, which fetches CC0 audio from
+`raw.githubusercontent.com` when the user taps Add or Preview. Android
+backup is disabled, so projects stay on the device unless the user exports or
+shares them.
 
 ## Store listing files
 
@@ -61,6 +65,7 @@ fastlane/metadata/android/en-US/
 ├── title.txt
 ├── short_description.txt
 ├── full_description.txt
+├── changelogs/3.txt
 ├── changelogs/2.txt
 └── images/
     ├── icon.png
@@ -100,8 +105,9 @@ cd android
 
 The expected output is
 `android/app/build/outputs/apk/release/app-release-unsigned.apk` with
-`versionCode 2`, `versionName 1.2.0`, and no `INTERNET` permission. This was
-verified against the `v1.2.0` tag on 2026-11-22.
+`versionCode 2`, `versionName 1.2.0`, and no `INTERNET` permission (the 1.3.0
+build adds `INTERNET` for optional downloads). This was verified against the
+`v1.2.0` tag on 2026-11-22.
 
 To check whether F-Droid will see a newer version, run this from a full
 `fdroiddata` checkout:
@@ -149,16 +155,16 @@ F-Droid's canonical metadata repository is on GitLab:
      ```markdown
      This merge request was created by an AI agent (OpenHands) on behalf of @ones-is-lord.
 
-     Adds Chipboy Studio, an offline chiptune studio.
+     Adds Chipboy Studio, a local-first chiptune studio with optional CC0 audio downloads.
 
      - Source: https://github.com/ones-is-lord/chipboy-studio
      - Licence: MIT
-     - Version: 1.2.0 (versionCode 2)
-     - Tag: v1.2.0
+     - Version: 1.3.0 (versionCode 3)
+     - Tag: v1.3.0
      - Build: Capacitor 8 + Vite 8 + Gradle, unsigned release APK
-     - Offline: no INTERNET permission; all assets bundled
+     - Offline: the core studio is fully offline and all instruments/fonts are bundled. The optional free-pack browser uses INTERNET to fetch CC0 audio only on user action.
      - Metadata: fastlane listing and screenshots in the upstream repository
-     - Local checks: `fdroid lint` clean; clean build from `v1.2.0` succeeded
+     - Local checks: `fdroid lint` clean; the last verified clean build from `v1.2.0` succeeded
      ```
 
 8. Answer the maintainers' questions. The first review can take days or weeks.
@@ -214,8 +220,8 @@ avoids both the image's default Node.js and a NodeSource pipe.
 
 `npm install -g pnpm` runs as root so the binary lands in `/usr/local/bin` and
 is on the build user's `PATH`. Check the current buildserver image before
-changing this. Avoid adding a network call to the app itself; the app must stay
-offline.
+changing this. Keep the core app offline; the only network call is the
+optional, user-initiated free-pack download.
 
 ## Updating a published app
 

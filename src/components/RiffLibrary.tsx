@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useStudio } from "./StudioProvider";
 import { useSongPlayback } from "@/hooks/use-song-playback";
 import { PixelArt } from "./PixelArt";
+import { FreePackBrowser } from "./FreePackBrowser";
 import { coveringBlock } from "@/lib/song";
 import { instrumentById } from "@/lib/instruments";
 import { allRiffs, deleteCustomRiff, loadCustomRiffs, riffTrack, saveCustomRiff, type Riff, type RiffCategory, RIFF_CATEGORIES } from "@/lib/riffs";
@@ -121,5 +122,7 @@ export function RiffLibrary({ active }: { active: boolean }) {
         <Button onClick={capture} className="play-button h-8 px-3 text-[9px]"><Plus size={12} /> SAVE RIFF</Button>
       </div>
     </section>
+
+    <FreePackBrowser active={active} onRiffsSaved={setCustom} onPreviewRiff={preview} />
   </div>;
 }

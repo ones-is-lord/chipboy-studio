@@ -94,7 +94,7 @@ The recommended production headers are in `vercel.json` and `public/_headers`. T
 
 | Header | Value | Why |
 | --- | --- | --- |
-| `Content-Security-Policy` | `default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob: data:; connect-src 'self' blob:; worker-src 'self' blob:; base-uri 'self'; form-action 'self'; frame-ancestors 'none'` | Blocks third-party script injection while allowing the audio and canvas work. |
+| `Content-Security-Policy` | `default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob: data:; connect-src 'self' blob: https://raw.githubusercontent.com; worker-src 'self' blob:; base-uri 'self'; form-action 'self'; frame-ancestors 'none'` | Blocks third-party script injection while allowing the audio, canvas and user-initiated free-pack downloads. |
 | `Permissions-Policy` | `camera=(), geolocation=(), microphone=(self)` | The sampler needs the microphone; nothing else does. |
 | `X-Frame-Options` | `DENY` | Prevents clickjacking. |
 | `X-Content-Type-Options` | `nosniff` | Stops MIME confusion. |

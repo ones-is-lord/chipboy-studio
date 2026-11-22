@@ -16,6 +16,22 @@ The web and Android builds bundle these fonts through the Fontsource packages:
 The SIL Open Font License permits bundling and redistribution of the fonts with
 this application. The fonts are not sold on their own.
 
+## Optional downloaded audio
+
+The free-pack browser can download 66 game-audio assets from five public
+repositories. They are not bundled in the app. Every asset is dedicated to the
+public domain under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/):
+
+| Pack | Author | Source |
+| --- | --- | --- |
+| Homebrew jingles (MIDI and audio) | Beatscribe | <https://github.com/Beatscribe/homebrew_vgm> |
+| Grave Reckoning loops | Kryptikone316 | <https://github.com/Kryptikone316/Grave-Reckoning> |
+| Retro UI and game SFX | mshark1 | <https://github.com/mshark1/audio-mcp-assets> |
+| CC0 game themes | FreePD and HoliznaCC0 | <https://github.com/SoundSafari/CC0-1.0-Music> |
+
+CC0 requires no attribution. The app still credits each author and links the
+source. See [`docs/FREE-PACKS.md`](docs/FREE-PACKS.md) for the full audit.
+
 ## Runtime libraries
 
 | Package | License |

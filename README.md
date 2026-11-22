@@ -61,6 +61,7 @@ Built with React 19, TypeScript, Vite, Tailwind CSS and the Web Audio API. Style
 - Stamping switches the channel to the riff's instrument and root note while keeping the channel name; sample channels keep their audio and fit the riff by octave.
 - Capture the selected pattern as a named custom riff. Up to 40 custom riffs live in browser storage.
 - Category filters, name search, a 16-step mini-grid on every card, and a delete action for custom riffs.
+- **Free game audio browser**: download 66 CC0 game jingles, MIDI riffs, 16-bit loops and retro SFX from credited public repositories, then add them to My riffs or the Sampler. See [docs/FREE-PACKS.md](docs/FREE-PACKS.md).
 
 ### Beat lab
 
@@ -143,7 +144,7 @@ The Android build is a complete offline app, not a browser shortcut. Capacitor b
 - **Minimum Android:** 7.0 (API 24)
 - **Target Android:** 16 (API 36)
 - **APK size:** about 4.3 MB
-- **Permissions:** microphone, vibration and audio settings only; no internet permission
+- **Permissions:** microphone, vibration, audio settings and internet. The core studio is fully offline; the internet permission is only used when you tap a free-pack download or preview.
 - **Download:** [latest GitHub release](https://github.com/ones-is-lord/chipboy-studio/releases/latest)
 
 To install, download the `.apk`, open it on the device, and allow installs from your browser or file manager when Android asks. The release APK is signed for sideloading; F-Droid builds and signs its own copy from the same source.
@@ -221,7 +222,7 @@ flowchart LR
 
 The song is plain serializable state. Playback converts arrangement blocks into timed note events, schedules them on a `BaseAudioContext`, and the same scheduling code runs against an `OfflineAudioContext` for WAV export. The sampler keeps decoded `AudioBuffer` objects in memory only; project files and browser storage keep sample metadata and a `sampleId`, never raw audio.
 
-Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for module boundaries, the audio graph and the state flow. Read [docs/MUSIC-GENERATOR.md](docs/MUSIC-GENERATOR.md) for the research behind the riff library and mixer. Read [docs/PROJECT_FORMAT.md](docs/PROJECT_FORMAT.md) for the file schema.
+Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for module boundaries, the audio graph and the state flow. Read [docs/MUSIC-GENERATOR.md](docs/MUSIC-GENERATOR.md) for the research behind the riff library and mixer. Read [docs/FREE-PACKS.md](docs/FREE-PACKS.md) for the CC0 source audit and downloader design. Read [docs/PROJECT_FORMAT.md](docs/PROJECT_FORMAT.md) for the file schema.
 
 ## Project files and privacy
 
@@ -267,7 +268,7 @@ The repository ships F-Droid-compatible metadata:
 - `fastlane/metadata/android/en-US/` with the title, summary, description, changelog, icon, feature graphic and screenshots.
 - `fdroid/io.github.onesislord.chipboy.yml`, a ready-to-copy build recipe for the [fdroiddata](https://gitlab.com/fdroid/fdroiddata) repository.
 
-Chipboy Studio is MIT licensed, has no tracking, no ads and no network dependency. The Android build uses only free and open-source libraries and can be built from source with the Android SDK and the committed pnpm lockfile. The recipe passes `fdroid lint`, and the clean build from the `v1.2.0` tag produces an unsigned APK with no internet permission.
+Chipboy Studio is MIT licensed, has no tracking and no ads. The app has no backend and makes no request while you make music; the only network use is the optional, user-initiated free-pack downloader. The Android build uses only free and open-source libraries and can be built from source with the Android SDK and the committed pnpm lockfile. The recipe passes `fdroid lint`; the last fully verified clean build from the `v1.2.0` tag produced an unsigned APK, and the `v1.3.0` recipe entry is ready for the next tag.
 
 Run `pnpm fdroid:lint` after editing the recipe. The fdroiddata merge request still has to be opened from a GitLab account; the repository does not store GitLab credentials. See [docs/FDROID.md](docs/FDROID.md) for the submission checklist and the exact merge request text.
 
@@ -289,6 +290,7 @@ The CI workflow runs the same command on every push and pull request, plus a pro
 - [Third-party licenses](THIRD_PARTY_LICENSES.md)
 - [Inspired by MTV Music Generator](docs/MUSIC-GENERATOR.md)
 - [Beat lab and FX rack](docs/BEAT-LAB.md)
+- [Free game audio packs](docs/FREE-PACKS.md)
 - [Project file format](docs/PROJECT_FORMAT.md)
 - [Development guide](docs/DEVELOPMENT.md)
 - [Deployment guide](docs/DEPLOYMENT.md)

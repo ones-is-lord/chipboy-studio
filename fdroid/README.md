@@ -7,9 +7,14 @@
 
 The recipe passes `fdroid lint` and a no-op `fdroid rewritemeta` with
 `fdroidserver` 2.4.5. `pnpm fdroid:lint` also checks the 80-character summary
-limit and the no-trailing-period rule. The same clean build steps were run from
-the `v1.2.0` tag and produced an unsigned APK with `versionCode 2`,
-`versionName 1.2.0`, and no `INTERNET` permission.
+limit and the no-trailing-period rule. The last fully verified clean build used
+the `v1.2.0` tag and produced an unsigned APK with `versionCode 2` and
+`versionName 1.2.0`. The recipe now includes a `1.3.0` build entry
+(`versionCode 3`); rerun the clean build after tagging `v1.3.0`.
+
+The app declares `INTERNET` because the optional free-pack browser downloads
+CC0 audio on demand. The core studio, all built-in sounds and all fonts are
+bundled and work without a connection.
 
 From the repository root:
 

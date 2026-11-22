@@ -49,7 +49,7 @@ The lesson is not that a music tool needs a story mode. It is that a constrained
 | Channel volume and reverb | The pattern editor exposes volume, pitch and pan per channel, plus a 23-control FX rack with filtering, drive, distortion, acid, modulation, delay, reverb, compression and EQ. |
 | Combining layers | The arrangement supports up to 32 channels, and the mixer now supports **solo**, mute, pan and per-channel FX. |
 | Visual identity for riffs | Arrangement blocks carry a colour-coded dot and left border based on the channel's instrument family. |
-| Fast, local workflow | Everything is local. No account, no upload, no network request after load. |
+| Fast, local workflow | Everything is local. No account, no upload. The only network use is the optional free-pack download. |
 | Drum-machine sketchpad | **Beat lab** adds an 18-lane, 16-step loop station with four banks, BPM and swing. Send active lanes to the song as individual drum-kit channels. See [BEAT-LAB.md](BEAT-LAB.md). |
 
 ### Riff design

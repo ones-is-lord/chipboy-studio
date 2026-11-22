@@ -19,6 +19,7 @@
     "android:release": "pnpm android:sync && cd android && ./gradlew assembleRelease",
     "android:lint": "cd android && ./gradlew lint",
     "fdroid:lint": "bash scripts/check-fdroid.sh",
+    "free-packs:check": "node --experimental-strip-types scripts/check-free-packs.mjs",
     "android:icons": "capacitor-assets generate --android",
     "android:open": "cap open android"
   },

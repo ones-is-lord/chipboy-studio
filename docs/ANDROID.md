@@ -11,15 +11,18 @@ native share, status bar, splash screen and haptics plugins.
 - Target SDK: 36 (Android 16)
 - Version: `1.3.0`, version code `3`
 - Web assets: copied from `dist/` into `android/app/src/main/assets/public/`
-- Permissions: microphone (optional sampler recording), vibration (haptics)
-  and audio settings. The APK requests no internet permission.
+- Permissions: microphone (optional sampler recording), vibration (haptics),
+  audio settings and internet. Internet is only used by the optional
+  free-pack downloader when the user taps Add or Preview.
 - No analytics, advertising, crash reporting or remote API calls
 - Android backup is disabled, so projects stay on the device unless the user
   exports or shares them
 
-The app is fully offline after installation. Android's WebView loads the
+The core app is fully offline after installation. Android's WebView loads the
 bundled `https://localhost` app shell through Capacitor's local asset handler;
-it never fetches the live website. Cleartext traffic is disabled.
+it never fetches the live website. Cleartext traffic is disabled. The optional
+free-pack browser fetches CC0 files from `raw.githubusercontent.com` over HTTPS
+only when the user asks for them; no project data or audio is uploaded.
 
 ## Prerequisites
 

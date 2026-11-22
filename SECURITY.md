@@ -37,6 +37,7 @@ Chipboy Studio is a static client-side app. Relevant reports include:
 - Denial of service through crafted project files or audio metadata.
 - Privacy leaks: audio, project data or microphone streams leaving the device.
 - Android WebView bridge issues, unsafe intent handling or exported-component problems.
+- A malicious or tampered free-pack file, or a download path that bypasses the HTTPS, CORS or size checks.
 - Release signing or update-chain problems.
 - Dependency vulnerabilities with a reachable path in the built app.
 
@@ -58,6 +59,6 @@ Maintainers aim to acknowledge a report within a few days, agree on a disclosure
 - Project files are validated and size-limited.
 - The recommended deployment headers include a restrictive CSP and a microphone-only permissions policy.
 - The app does not use `eval`, remote scripts or third-party trackers.
-- The Android build bundles its assets and works without a network. It requests no internet permission and disables cleartext traffic.
-- Android permissions are limited to microphone, vibration and audio settings; the microphone is requested only when the user starts recording. App backup and device transfer are disabled.
+- The Android build bundles its assets and the core studio works without a network. Cleartext traffic is disabled.
+- Android permissions are microphone, vibration, audio settings and internet. The microphone is requested only when the user starts recording. Internet is used only by the optional free-pack browser, which fetches HTTPS files from `raw.githubusercontent.com` on user action, enforces a 12 MB limit and times out after 30 seconds. Nothing is uploaded. App backup and device transfer are disabled.
 - Release keystores and passwords are never committed. CI reads them from repository secrets.

@@ -61,7 +61,7 @@ See [docs/ANDROID.md](docs/ANDROID.md) for signing and device install steps.
 - **Small and readable.** Prefer a clear function over a clever one.
 - **Real code paths in tests.** Do not mock the domain modules; they are pure and fast. Audio tests may use the `AudioBuffer` polyfill in `src/test/setup.ts`.
 - **Accessible controls.** Use real buttons, labels and focus states. Keep `prefers-reduced-motion` working.
-- **No hidden network calls.** Audio and project data stay on the device.
+- **No hidden network calls.** Audio and project data stay on the device. Free-pack downloads are user-initiated, CC0/public-domain, and documented in [docs/FREE-PACKS.md](docs/FREE-PACKS.md).
 - **No new runtime dependencies without a reason.** The bundle is intentionally small.
 - **No secrets in the repository.** There are no server secrets. Never commit a keystore, signing password or signed APK. Use the documented environment variables or GitHub Actions secrets.
 
@@ -85,6 +85,7 @@ See [docs/ANDROID.md](docs/ANDROID.md) for signing and device install steps.
 | UI behavior | Manual browser check plus screenshots in the pull request |
 | Android shell, permissions or native share | Manual APK install on a device or emulator, plus `pnpm android:lint` |
 | F-Droid recipe or listing | `pnpm fdroid:lint` |
+| Free-pack catalogue | Unit test in `src/lib/free-packs.test.ts` plus `pnpm free-packs:check` |
 
 If a bug is fixed, add a regression test where the logic is testable. If the bug is purely visual, describe the before and after and include screenshots.
 
@@ -94,6 +95,7 @@ If a bug is fixed, add a regression test where the logic is testable. If the bug
 - [ ] `pnpm check` passes.
 - [ ] `pnpm audit` reports no known vulnerabilities.
 - [ ] `pnpm fdroid:lint` passes if the F-Droid recipe or listing changed.
+- [ ] `pnpm free-packs:check` passes if the free-pack catalogue changed.
 - [ ] New behavior has tests or a clear manual verification note.
 - [ ] Documentation is updated when needed.
 - [ ] UI changes include screenshots at desktop and mobile widths.

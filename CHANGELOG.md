@@ -18,6 +18,10 @@ Nothing yet.
 - FX presets for clean, crunch, acid 303, wide, dub, lo-fi, compression, space and destroy.
 - Eleven new instrument presets, bringing the library to 42, including arcade pulse, hyperpop lead, synthwave saw, phonk bass, lo-fi keys, snare roll, ride cymbal, timpani, kettle bell, double-bass kick and tight clap.
 - `docs/BEAT-LAB.md` with the lane reference, loop-station controls, send-to-song behavior, FX rack guide and code map.
+- **Free game audio browser** in the Riff library, with 66 CC0 assets across five credited packs: 17 MIDI riffs, 17 audio fanfares, five 16-bit dungeon loops, 24 retro UI/game SFX and three CC0 game themes. Audio becomes a sampler sound; MIDI becomes a one-bar riff.
+- `docs/FREE-PACKS.md` with the licence audit, source list, download behaviour and pack-addition guide.
+- `src/lib/midi.ts`, a small Standard MIDI File reader that turns melodic notes into the 16-step riff grid.
+- `pnpm free-packs:check`, a live audit that verifies every free-pack URL returns 200, sends CORS headers and stays under the download ceiling.
 - `pnpm fdroid:lint` and an F-Droid metadata CI workflow that validate the `fdroiddata` recipe on every relevant change.
 - Full SIL Open Font License texts for Press Start 2P, Pixelify Sans and Nunito in `licenses/`, summarized in `THIRD_PARTY_LICENSES.md`.
 - F-Droid submission packet with the exact merge request title, label and body in `docs/FDROID.md`.
@@ -25,6 +29,10 @@ Nothing yet.
 ### Changed
 - The Pattern editor now exposes the full FX rack instead of separate reverb and delay sliders.
 - The workspace now has six modes: Song maker, Instruments, Sampler, Riffs, Beat lab and Projects.
+- The Android manifest adds the `INTERNET` permission for optional free-pack downloads. The core studio, instruments and fonts remain fully offline.
+- The free-pack downloader times out stalled requests after 30 seconds, rejects files over 12 MB and caps its decoded-audio cache at 96 MB.
+- The service worker now calls `skipWaiting` and `clientsClaim`, so a deployed update replaces a stale cached build on the next load.
+- The F-Droid recipe adds a `1.3.0` build entry (`versionCode 3`) and documents the optional network use.
 - Project files remain version 5; older files load the new FX fields with safe defaults.
 - F-Droid listing now points `WebSite` at the GitHub Pages build, uses the 75-character summary without a trailing period, and links the changelog through `/HEAD/` so it survives branch changes.
 - The F-Droid recipe README and contributor checklist document the local lint and clean-build verification.
